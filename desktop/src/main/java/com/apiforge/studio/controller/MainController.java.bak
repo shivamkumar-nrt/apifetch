@@ -1,0 +1,1818 @@
+package com.apiforge.studio.controller;
+
+import com.apiforge.studio.model.ApiRequest;
+import com.apiforge.studio.model.ApiResponse;
+import com.apiforge.studio.model.HistoryEntry;
+import com.apiforge.studio.model.KeyValuePair;
+import com.apiforge.studio.service.HttpClientService;
+import com.apiforge.studio.service.StorageService;
+import com.apiforge.studio.service.WebSocketService;
+import com.apiforge.studio.service.DatabaseService;
+import com.apiforge.studio.service.EnvironmentService;
+import com.apiforge.studio.service.LoadTestingService;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.scene.Scene;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import java.io.File;
+import java.nio.file.Files;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+public class MainController {
+
+    // Services
+    private HttpClientService httpClientService;
+    private WebSocketService webSocketService;
+    private StorageService storageService;
+    private DatabaseService databaseService;
+    private EnvironmentService environmentService;
+    private LoadTestingService loadTestingService;
+
+    // Active state
+    private ApiRequest currentRequest;
+    private String lastResponseBody = null;
+    private int lastResponseStatus = 0;
+    private final ObservableList<KeyValuePair> queryParamsData = FXCollections.observableArrayList();
+    private final ObservableList<KeyValuePair> headersData = FXCollections.observableArrayList();
+    private final ObservableList<KeyValuePair> responseHeadersData = FXCollections.observableArrayList();
+    
+    private final ObservableList<String> historyListItems = FXCollections.observableArrayList();
+    private List<HistoryEntry> historyList;
+    private List<com.apiforge.studio.model.Collection> collectionsList;
+
+    // FXML Elements
+    @FXML private ComboBox<String> protocolComboBox;
+    @FXML private ComboBox<String> methodComboBox;
+    @FXML private ComboBox<String> authTypeComboBox;
+    @FXML private TextField urlTextField;
+    @FXML private Button sendButton;
+    @FXML private Button saveExampleButton;
+    @FXML private BorderPane rootContainer;
+    @FXML private ComboBox<String> themeComboBox;
+    @FXML private ComboBox<com.apiforge.studio.model.Workspace> workspaceComboBox;
+    @FXML private ComboBox<com.apiforge.studio.model.Environment> environmentComboBox;
+    @FXML private TextArea preRequestScriptArea;
+    @FXML private TextArea testScriptArea;
+
+    // Sidebar
+    @FXML private TextField searchHistoryField;
+    @FXML private ListView<String> historyListView;
+    @FXML private TreeView<Object> collectionsTreeView;
+
+    // Request Tabs
+    @FXML private TableView<KeyValuePair> paramsTable;
+    @FXML private TableColumn<KeyValuePair, String> paramKeyColumn;
+    @FXML private TableColumn<KeyValuePair, String> paramValueColumn;
+    @FXML private TextField paramKeyField;
+    @FXML private TextField paramValueField;
+
+    @FXML private Tab headersTab;
+    @FXML private TableView<KeyValuePair> headersTable;
+    @FXML private TableColumn<KeyValuePair, Boolean> headerEnabledColumn;
+    @FXML private TableColumn<KeyValuePair, String> headerKeyColumn;
+    @FXML private TableColumn<KeyValuePair, String> headerValueColumn;
+    @FXML private TableColumn<KeyValuePair, Void> headerDeleteColumn;
+    @FXML private TextField headerKeyField;
+    @FXML private TextField headerValueField;
+    @FXML private Label headerCountLabel;
+    @FXML private MenuButton presetHeadersBtn;
+
+    // Auth fields
+    @FXML private StackPane authConfigContainer;
+    @FXML private VBox basicAuthForm;
+    @FXML private VBox bearerAuthForm;
+    @FXML private VBox apiKeyAuthForm;
+    @FXML private Label noAuthLabel;
+    @FXML private TextField authUsernameField;
+    @FXML private PasswordField authPasswordField;
+    @FXML private TextField authTokenField;
+    @FXML private TextField apiKeyNameField;
+    @FXML private TextField apiKeyValueField;
+
+    @FXML private Tab bodyTab;
+    @FXML private TextArea bodyTextArea;
+    @FXML private ToggleGroup bodyTypeGroup;
+    @FXML private RadioButton bodyNoneRadio;
+    @FXML private RadioButton bodyFormDataRadio;
+    @FXML private RadioButton bodyUrlEncodedRadio;
+    @FXML private RadioButton bodyRawRadio;
+    @FXML private RadioButton bodyBinaryRadio;
+    @FXML private VBox formDataPane;
+    @FXML private TextField formKeyField;
+    @FXML private TextField formValueField;
+    @FXML private TableView<KeyValuePair> formDataTable;
+    @FXML private TableColumn<KeyValuePair, String> formKeyColumn;
+    @FXML private TableColumn<KeyValuePair, String> formValueColumn;
+    @FXML private Label noBodyLabel;
+
+    @FXML private CheckBox followRedirectsCheck;
+    @FXML private CheckBox verifySslCheck;
+
+    private final ObservableList<KeyValuePair> formDataList = FXCollections.observableArrayList();
+
+    // Response Panel
+    @FXML private Label statusBadge;
+    @FXML private TextField exampleStatusCodeField;
+    @FXML private Label timeLabel;
+    @FXML private Label sizeLabel;
+    @FXML private ProgressIndicator loadingProgress;
+    @FXML private WebView responsePrettyWebView;
+    @FXML private TextArea exampleBodyEditor;
+    private StringBuilder streamBuffer = new StringBuilder();
+    @FXML private WebView responseWebView;
+    @FXML private TableView<KeyValuePair> responseHeadersTable;
+    @FXML private TableColumn<KeyValuePair, String> responseHeaderKeyColumn;
+    @FXML private TableColumn<KeyValuePair, String> responseHeaderValueColumn;
+    @FXML private Button addExampleHeaderBtn;
+    
+    private com.apiforge.studio.model.RequestExample currentExample;
+
+    // AI Assistant
+    @FXML private TextArea aiResponseTextArea;
+
+    // Load Tester
+    @FXML private TextField loadUsersField;
+    @FXML private TextField loadLoopsField;
+    @FXML private TextArea loadTestResultsTextArea;
+
+    // Mock Configurator
+    @FXML private TextField mockPathField;
+    @FXML private TextField mockStatusField;
+    @FXML private TextField mockDelayField;
+    @FXML private TextArea mockBodyField;
+
+    @FXML
+    public void initialize() {
+        // Instantiate Services
+        httpClientService = new HttpClientService();
+        webSocketService = new WebSocketService();
+        storageService = new StorageService();
+        databaseService = new DatabaseService();
+        environmentService = new EnvironmentService(databaseService.getConnection());
+        loadTestingService = new LoadTestingService();
+
+        currentRequest = new ApiRequest();
+
+        // Populate Choiceboxes
+        protocolComboBox.getItems().addAll("REST", "GraphQL", "WebSocket", "gRPC", "SOAP", "SSE");
+        protocolComboBox.setValue("REST");
+
+        methodComboBox.getItems().addAll("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS");
+        methodComboBox.setValue("GET");
+
+        authTypeComboBox.getItems().addAll("NONE", "BASIC", "BEARER", "API_KEY");
+        authTypeComboBox.setValue("NONE");
+
+        // Theme chooser setup
+        themeComboBox.getItems().addAll("Dark Mode", "Light Mode");
+        themeComboBox.setValue("Dark Mode");
+        onThemeChanged(null);
+
+        // Bind Tables
+        paramKeyColumn.setCellValueFactory(data -> data.getValue().keyProperty());
+        paramValueColumn.setCellValueFactory(data -> data.getValue().valueProperty());
+        paramsTable.setItems(queryParamsData);
+
+        // ── Headers table: Postman-style 4 columns ──
+        setupPostmanHeadersTable();
+
+        responseHeaderKeyColumn.setCellValueFactory(data -> data.getValue().keyProperty());
+        responseHeaderValueColumn.setCellValueFactory(data -> data.getValue().valueProperty());
+        responseHeadersTable.setItems(responseHeadersData);
+        
+        responseHeaderKeyColumn.setCellFactory(javafx.scene.control.cell.TextFieldTableCell.forTableColumn());
+        responseHeaderValueColumn.setCellFactory(javafx.scene.control.cell.TextFieldTableCell.forTableColumn());
+        
+        formKeyColumn.setCellValueFactory(data -> data.getValue().keyProperty());
+        formValueColumn.setCellValueFactory(data -> data.getValue().valueProperty());
+        formDataTable.setItems(formDataList);
+
+        bodyTypeGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == bodyNoneRadio) {
+                bodyTextArea.setVisible(false);
+                formDataPane.setVisible(false);
+                noBodyLabel.setVisible(true);
+            } else if (newVal == bodyFormDataRadio || newVal == bodyUrlEncodedRadio) {
+                bodyTextArea.setVisible(false);
+                formDataPane.setVisible(true);
+                noBodyLabel.setVisible(false);
+            } else {
+                bodyTextArea.setVisible(true);
+                formDataPane.setVisible(false);
+                noBodyLabel.setVisible(false);
+            }
+        });
+
+        // Load persisted workspaces and history
+        refreshWorkspacesSelector();
+        historyList = storageService.loadHistory();
+        refreshHistoryView();
+
+        // Listeners for Sidebar clicks
+        historyListView.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal.intValue() >= 0 && newVal.intValue() < historyList.size()) {
+                loadRequestIntoUI(historyList.get(newVal.intValue()).getRequest());
+            }
+        });
+
+        collectionsTreeView.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                if (newVal.getValue() instanceof ApiRequest) {
+                    loadRequestIntoUI((ApiRequest) newVal.getValue());
+                    sendButton.setDisable(false);
+                } else if (newVal.getValue() instanceof com.apiforge.studio.model.RequestExample) {
+                    loadExampleIntoUI((com.apiforge.studio.model.RequestExample) newVal.getValue());
+                }
+            }
+        });
+
+        setupCollectionsContextMenu();
+
+        // Live filtering for history
+        searchHistoryField.textProperty().addListener((obs, oldVal, newVal) -> filterHistory(newVal));
+    }
+
+    @FXML
+    private void onProtocolChanged(ActionEvent event) {
+        String proto = protocolComboBox.getValue();
+        if ("WebSocket".equals(proto)) {
+            methodComboBox.setValue("GET");
+            methodComboBox.setDisable(true);
+            urlTextField.setPromptText("ws://echo.websocket.org");
+            bodyTab.setDisable(false); // Can be used to send websocket frame payload
+        } else {
+            methodComboBox.setDisable(false);
+            urlTextField.setPromptText("https://api.example.com/endpoint");
+        }
+    }
+
+    @FXML
+    private void onAuthTypeChanged(ActionEvent event) {
+        String type = authTypeComboBox.getValue();
+        noAuthLabel.setVisible("NONE".equals(type));
+        basicAuthForm.setVisible("BASIC".equals(type));
+        bearerAuthForm.setVisible("BEARER".equals(type));
+        apiKeyAuthForm.setVisible("API_KEY".equals(type));
+    }
+
+    @FXML
+    private void addQueryParam(ActionEvent event) {
+        String key = paramKeyField.getText().trim();
+        String val = paramValueField.getText().trim();
+        if (!key.isEmpty()) {
+            queryParamsData.add(new KeyValuePair(key, val));
+            paramKeyField.clear();
+            paramValueField.clear();
+        }
+    }
+
+    @FXML
+    private void addFormData(ActionEvent event) {
+        String key = formKeyField.getText().trim();
+        String val = formValueField.getText().trim();
+        if (!key.isEmpty()) {
+            formDataList.add(new KeyValuePair(key, val));
+            formKeyField.clear();
+            formValueField.clear();
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  POSTMAN-STYLE HEADERS TABLE
+    // ─────────────────────────────────────────────────────────
+
+    private static final Set<String> STANDARD_REQ_HEADERS = Set.of(
+        "content-type", "accept", "authorization", "user-agent",
+        "cache-control", "accept-encoding", "accept-language",
+        "connection", "host", "origin", "referer", "cookie",
+        "x-api-key", "x-request-id", "x-correlation-id"
+    );
+
+    private static final Set<String> STANDARD_RESP_HEADERS = Set.of(
+        "content-type", "content-length", "content-encoding",
+        "transfer-encoding", "cache-control", "etag", "date",
+        "server", "access-control-allow-origin", "vary",
+        "set-cookie", "location", "strict-transport-security",
+        "connection", "keep-alive", "x-request-id"
+    );
+
+    private boolean isStandardRequestHeader(String key) {
+        return key != null && STANDARD_REQ_HEADERS.contains(key.toLowerCase());
+    }
+
+    private boolean isStandardResponseHeader(String key) {
+        return key != null && STANDARD_RESP_HEADERS.contains(key.toLowerCase());
+    }
+
+    private void setupPostmanHeadersTable() {
+        headersTable.setEditable(true);
+        headersTable.setItems(headersData);
+
+        // ── Col 1: Checkbox (enabled/disabled toggle) ──
+        headerEnabledColumn.setCellValueFactory(data -> data.getValue().enabledProperty());
+        headerEnabledColumn.setCellFactory(col -> {
+            CheckBoxTableCell<KeyValuePair, Boolean> cell = new CheckBoxTableCell<>();
+            cell.setAlignment(Pos.CENTER);
+            return cell;
+        });
+        headerEnabledColumn.setEditable(true);
+
+        // ── Col 2: Key — colored for standard headers, inline editable ──
+        headerKeyColumn.setCellValueFactory(data -> data.getValue().keyProperty());
+        headerKeyColumn.setCellFactory(col -> new TableCell<>() {
+            private final TextField tf = new TextField();
+            {
+                tf.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 4 0 4;");
+                tf.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+                    if (!isFocused && getTableRow() != null && getTableRow().getItem() != null) {
+                        getTableRow().getItem().setKey(tf.getText());
+                        updateHeaderCountBadge();
+                    }
+                });
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setGraphic(null); return; }
+                tf.setText(item);
+                boolean standard = isStandardRequestHeader(item);
+                tf.setStyle(
+                    "-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 4 0 4;" +
+                    (standard ? " -fx-text-fill: #4f46e5; -fx-font-weight: bold;" : " -fx-text-fill: #1e293b;")
+                );
+                setGraphic(tf);
+                setText(null);
+            }
+        });
+        headerKeyColumn.setEditable(true);
+
+        // ── Col 3: Value — inline editable ──
+        headerValueColumn.setCellValueFactory(data -> data.getValue().valueProperty());
+        headerValueColumn.setCellFactory(col -> new TableCell<>() {
+            private final TextField tf = new TextField();
+            {
+                tf.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-padding: 0 4 0 4; -fx-text-fill: #475569;");
+                tf.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+                    if (!isFocused && getTableRow() != null && getTableRow().getItem() != null) {
+                        getTableRow().getItem().setValue(tf.getText());
+                    }
+                });
+            }
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setGraphic(null); return; }
+                tf.setText(item);
+                setGraphic(tf);
+                setText(null);
+            }
+        });
+        headerValueColumn.setEditable(true);
+
+        // ── Col 4: Delete button per row ──
+        headerDeleteColumn.setCellFactory(col -> new TableCell<>() {
+            private final Button deleteBtn = new Button("🗑");
+            {
+                deleteBtn.setStyle(
+                    "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                    "-fx-text-fill: #94a3b8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 2 4 2 4;"
+                );
+                deleteBtn.setOnMouseEntered(e -> deleteBtn.setStyle(
+                    "-fx-background-color: #fef2f2; -fx-border-color: transparent;" +
+                    "-fx-text-fill: #dc2626; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 2 4 2 4; -fx-background-radius: 5;"
+                ));
+                deleteBtn.setOnMouseExited(e -> deleteBtn.setStyle(
+                    "-fx-background-color: transparent; -fx-border-color: transparent;" +
+                    "-fx-text-fill: #94a3b8; -fx-cursor: hand; -fx-font-size: 13px; -fx-padding: 2 4 2 4;"
+                ));
+                deleteBtn.setOnAction(e -> {
+                    KeyValuePair row = getTableRow().getItem();
+                    if (row != null) {
+                        headersData.remove(row);
+                        updateHeaderCountBadge();
+                    }
+                });
+            }
+            @Override
+            protected void updateItem(Void v, boolean empty) {
+                super.updateItem(v, empty);
+                setGraphic(empty ? null : deleteBtn);
+            }
+        });
+
+        // Count badge live update
+        headersData.addListener((ListChangeListener<KeyValuePair>) c -> updateHeaderCountBadge());
+        updateHeaderCountBadge();
+    }
+
+    private void updateHeaderCountBadge() {
+        if (headerCountLabel == null) return;
+        int count = headersData.size();
+        headerCountLabel.setText(count == 0 ? "No headers" : count + " header" + (count == 1 ? "" : "s"));
+        // Update the tab text too
+        if (headersTab != null) {
+            headersTab.setText(count == 0 ? "Headers" : "Headers (" + count + ")");
+        }
+    }
+
+    @FXML
+    private void addHeader(ActionEvent event) {
+        String key = headerKeyField.getText().trim();
+        String val = headerValueField.getText().trim();
+        if (!key.isEmpty()) {
+            headersData.add(new KeyValuePair(key, val));
+            headerKeyField.clear();
+            headerValueField.clear();
+        }
+    }
+
+    @FXML private void clearAllHeaders(ActionEvent e) {
+        headersData.clear();
+    }
+
+    // ── Preset Header Quick-Adds ──
+    @FXML private void addPresetJson(ActionEvent e)       { headersData.add(new KeyValuePair("Content-Type", "application/json")); }
+    @FXML private void addPresetMultipart(ActionEvent e)  { headersData.add(new KeyValuePair("Content-Type", "multipart/form-data")); }
+    @FXML private void addPresetAccept(ActionEvent e)     { headersData.add(new KeyValuePair("Accept", "application/json")); }
+    @FXML private void addPresetBearer(ActionEvent e)     { headersData.add(new KeyValuePair("Authorization", "Bearer {token}")); }
+    @FXML private void addPresetNoCache(ActionEvent e)    { headersData.add(new KeyValuePair("Cache-Control", "no-cache")); }
+    @FXML private void addPresetUserAgent(ActionEvent e)  { headersData.add(new KeyValuePair("User-Agent", "APIForge/1.0")); }
+
+    @FXML
+    private void sendRequest(ActionEvent event) {
+        // Collect inputs into currentRequest
+        updateRequestFromUI();
+
+        String url = currentRequest.getUrl().trim();
+        if (url.isEmpty()) {
+            showError("URL cannot be empty.");
+            return;
+        }
+
+        loadingProgress.setVisible(true);
+        sendButton.setDisable(true);
+        
+        statusBadge.setText("Sending...");
+        statusBadge.getStyleClass().removeAll("chip-status-error");
+        statusBadge.setStyle("-fx-background-color: #f5f5f5; -fx-text-fill: #9e9e9e; -fx-border-color: #e0e0e0;");
+
+        String proto = currentRequest.getProtocol();
+
+        if ("WebSocket".equals(proto)) {
+            handleWebSocketConnection();
+        } else if ("SSE".equals(proto)) {
+            handleSseConnection();
+        } else {
+            // REST, GraphQL, SOAP, gRPC (Mock/Shell execution fallback)
+            executeStandardRequest();
+        }
+    }
+
+    private void executeStandardRequest() {
+        // Resolve Environment
+        Map<String, String> currentEnv = new java.util.HashMap<>();
+        if (environmentComboBox != null && environmentComboBox.getValue() != null) {
+            currentEnv = environmentService.getEnvironmentVariablesAsMap(Integer.parseInt(environmentComboBox.getValue().getId()));
+        }
+        
+        final Map<String, String> finalEnv = currentEnv;
+
+        new Thread(() -> {
+            ApiResponse response = httpClientService.execute(currentRequest, finalEnv);
+            
+            Platform.runLater(() -> {
+                loadingProgress.setVisible(false);
+                sendButton.setDisable(false);
+
+                if (response.isSuccess()) {
+                    statusBadge.setText(response.getStatusCode() + " OK");
+                    statusBadge.getStyleClass().removeAll("chip-status-error");
+                    if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
+                        // Green — success
+                        statusBadge.setStyle("-fx-background-color: #e8f5e9; -fx-text-fill: #2e7d32; -fx-border-color: #c8e6c9;");
+                    } else {
+                        // Red — error
+                        statusBadge.setStyle("-fx-background-color: #ffebee; -fx-text-fill: #c62828; -fx-border-color: #ffcdd2;");
+                    }
+
+                    timeLabel.setText(response.getResponseTimeMs() + " ms");
+                    
+                    double sizeKb = response.getResponseSize() / 1024.0;
+                    sizeLabel.setText(String.format("%.2f KB", sizeKb));
+
+                    // Pretty text display
+                    String formattedJson = formatJson(response.getBody());
+                    boolean isLightMode = "Light Mode".equals(themeComboBox.getValue());
+                    responsePrettyWebView.getEngine().loadContent(generateHighlightedJsonHtml(formattedJson, isLightMode));
+
+                    // Webview HTML preview
+                    this.lastResponseBody = response.getBody();
+                    this.lastResponseStatus = response.getStatusCode();
+                    responseWebView.getEngine().loadContent(generateRichVisualizerHtml(lastResponseBody, isLightMode));
+
+                    // Fill headers table
+                    responseHeadersData.clear();
+                    response.getHeaders().forEach((k, v) -> responseHeadersData.add(new KeyValuePair(k, v)));
+
+                    // Add to history list
+                    HistoryEntry entry = new HistoryEntry(currentRequest, response.getStatusCode(), response.getResponseTimeMs());
+                    historyList.add(0, entry); // Prepends most recent
+                    storageService.saveHistory(historyList);
+                    refreshHistoryView();
+                    postHistoryToBackend(currentRequest.getMethod(), currentRequest.getUrl(), response.getStatusCode(), response.getResponseTimeMs());
+
+                } else {
+                    statusBadge.setText("Error");
+                    statusBadge.getStyleClass().removeAll("badge-inactive", "badge-success", "badge-error");
+                    statusBadge.getStyleClass().add("badge-error");
+                    timeLabel.setText(response.getResponseTimeMs() + " ms");
+                    boolean isLightMode = "Light Mode".equals(themeComboBox.getValue());
+                    responsePrettyWebView.getEngine().loadContent(generateHighlightedJsonHtml("Request Failed:\n" + response.getErrorMessage(), isLightMode));
+                    responseWebView.getEngine().loadContent("<h3>Request Failed</h3><pre>" + response.getErrorMessage() + "</pre>");
+                    responseHeadersData.clear();
+                }
+            });
+        }).start();
+    }
+
+    private void handleWebSocketConnection() {
+        if (webSocketService.isConnected()) {
+            webSocketService.sendMessage(bodyTextArea.getText());
+            streamBuffer.append("\n[Client Send]: ").append(bodyTextArea.getText());
+            updateStreamView();
+            loadingProgress.setVisible(false);
+            sendButton.setDisable(false);
+            return;
+        }
+
+        streamBuffer.setLength(0);
+        streamBuffer.append("[System]: Connecting to websocket...");
+        updateStreamView();
+        
+        webSocketService.connect(
+            currentRequest.getUrl(),
+            msg -> Platform.runLater(() -> { streamBuffer.append("\n[Message]: ").append(msg); updateStreamView(); }),
+            status -> Platform.runLater(() -> {
+                streamBuffer.append("\n[Status]: ").append(status);
+                updateStreamView();
+                statusBadge.setText("Connected");
+                statusBadge.getStyleClass().add("chip-status");
+            }),
+            err -> Platform.runLater(() -> {
+                streamBuffer.append("\n[Error]: ").append(err.getMessage());
+                updateStreamView();
+                statusBadge.setText("Closed");
+                statusBadge.getStyleClass().add("chip-status-error");
+                sendButton.setDisable(false);
+                loadingProgress.setVisible(false);
+            })
+        ).thenRun(() -> Platform.runLater(() -> {
+            sendButton.setText("Send Frame");
+            sendButton.setDisable(false);
+            loadingProgress.setVisible(false);
+        })).exceptionally(ex -> {
+            Platform.runLater(() -> {
+                streamBuffer.append("\n[Connection Error]: ").append(ex.getMessage());
+                updateStreamView();
+                sendButton.setDisable(false);
+                loadingProgress.setVisible(false);
+            });
+            return null;
+        });
+    }
+
+    private void handleSseConnection() {
+        streamBuffer.setLength(0);
+        streamBuffer.append("[System]: Connecting to SSE Stream...\n");
+        updateStreamView();
+        
+        httpClientService.executeSse(
+            currentRequest,
+            line -> Platform.runLater(() -> { streamBuffer.append(line).append("\n"); updateStreamView(); }),
+            err -> Platform.runLater(() -> {
+                streamBuffer.append("\n[Stream Closed/Error]: ").append(err.getMessage());
+                updateStreamView();
+                sendButton.setDisable(false);
+                loadingProgress.setVisible(false);
+            })
+        );
+        
+        statusBadge.setText("Listening");
+        statusBadge.getStyleClass().add("chip-status");
+        sendButton.setDisable(false);
+        loadingProgress.setVisible(false);
+    }
+    
+    private void updateStreamView() {
+        boolean isLightMode = "Light Mode".equals(themeComboBox.getValue());
+        String bg = isLightMode ? "#ffffff" : "#1e1e1e";
+        String fg = isLightMode ? "#0f172a" : "#e3e3e6";
+        String html = "<html><body style='background-color:" + bg + "; color:" + fg + "; font-family:monospace; white-space:pre-wrap; font-size:13px;'>" 
+                      + streamBuffer.toString().replace("<", "&lt;").replace(">", "&gt;") 
+                      + "</body></html>";
+        responsePrettyWebView.getEngine().loadContent(html);
+    }
+
+    @FXML
+    private void saveToFavorites(ActionEvent event) {
+        promptSaveRequestToCollection(null, null);
+    }
+
+    @FXML
+    private void clearHistory(ActionEvent event) {
+        historyList.clear();
+        storageService.saveHistory(historyList);
+        refreshHistoryView();
+    }
+
+    private void updateRequestFromUI() {
+        currentRequest.setUrl(urlTextField.getText());
+        currentRequest.setMethod(methodComboBox.getValue());
+        currentRequest.setProtocol(protocolComboBox.getValue());
+        currentRequest.setBody(bodyTextArea.getText());
+        currentRequest.setPreRequestScript(preRequestScriptArea.getText());
+        currentRequest.setTestScript(testScriptArea.getText());
+
+        Toggle selectedBodyType = bodyTypeGroup.getSelectedToggle();
+        if (selectedBodyType == bodyNoneRadio) currentRequest.setBodyType("none");
+        else if (selectedBodyType == bodyFormDataRadio) currentRequest.setBodyType("form-data");
+        else if (selectedBodyType == bodyUrlEncodedRadio) currentRequest.setBodyType("urlencoded");
+        else if (selectedBodyType == bodyBinaryRadio) currentRequest.setBodyType("binary");
+        else currentRequest.setBodyType("raw");
+
+        Map<String, String> fData = new HashMap<>();
+        for (KeyValuePair kv : formDataList) {
+            fData.put(kv.getKey(), kv.getValue());
+        }
+        currentRequest.setFormData(fData);
+
+        Map<String, Boolean> reqSettings = new HashMap<>();
+        reqSettings.put("followRedirects", followRedirectsCheck.isSelected());
+        reqSettings.put("verifySsl", verifySslCheck.isSelected());
+        currentRequest.setRequestSettings(reqSettings);
+
+        // Params
+        Map<String, String> params = new HashMap<>();
+        for (KeyValuePair kv : queryParamsData) {
+            params.put(kv.getKey(), kv.getValue());
+        }
+        currentRequest.setQueryParams(params);
+
+        // Headers
+        Map<String, String> headers = new HashMap<>();
+        for (KeyValuePair kv : headersData) {
+            headers.put(kv.getKey(), kv.getValue());
+        }
+        currentRequest.setHeaders(headers);
+
+        // Auth
+        currentRequest.setAuthType(authTypeComboBox.getValue());
+        Map<String, String> authConfig = new HashMap<>();
+        authConfig.put("username", authUsernameField.getText());
+        authConfig.put("password", authPasswordField.getText());
+        authConfig.put("token", authTokenField.getText());
+        authConfig.put("key", apiKeyNameField.getText());
+        authConfig.put("value", apiKeyValueField.getText());
+        currentRequest.setAuthConfig(authConfig);
+    }
+
+    private void loadRequestIntoUI(ApiRequest req) {
+        this.currentRequest = req;
+        this.currentExample = null;
+        
+        if (saveExampleButton != null) {
+            saveExampleButton.setVisible(false);
+            saveExampleButton.setManaged(false);
+        }
+        sendButton.setVisible(true);
+        sendButton.setManaged(true);
+        
+        if (exampleStatusCodeField != null) {
+            exampleStatusCodeField.setVisible(false);
+            exampleStatusCodeField.setManaged(false);
+        }
+        statusBadge.setVisible(true);
+        statusBadge.setManaged(true);
+        
+        if (exampleBodyEditor != null) {
+            exampleBodyEditor.setVisible(false);
+            exampleBodyEditor.setManaged(false);
+        }
+        responsePrettyWebView.setVisible(true);
+        responsePrettyWebView.setManaged(true);
+        
+        if (addExampleHeaderBtn != null) {
+            addExampleHeaderBtn.setVisible(false);
+            addExampleHeaderBtn.setManaged(false);
+        }
+        responseHeadersTable.setEditable(false);
+        
+        urlTextField.setText(req.getUrl());
+        methodComboBox.setValue(req.getMethod());
+        protocolComboBox.setValue(req.getProtocol());
+        bodyTextArea.setText(req.getBody());
+        preRequestScriptArea.setText(req.getPreRequestScript() != null ? req.getPreRequestScript() : "");
+        testScriptArea.setText(req.getTestScript() != null ? req.getTestScript() : "");
+
+        String bType = req.getBodyType();
+        if ("none".equals(bType)) bodyNoneRadio.setSelected(true);
+        else if ("form-data".equals(bType)) bodyFormDataRadio.setSelected(true);
+        else if ("urlencoded".equals(bType)) bodyUrlEncodedRadio.setSelected(true);
+        else if ("binary".equals(bType)) bodyBinaryRadio.setSelected(true);
+        else bodyRawRadio.setSelected(true);
+
+        formDataList.clear();
+        if (req.getFormData() != null) {
+            req.getFormData().forEach((k, v) -> formDataList.add(new KeyValuePair(k, v)));
+        }
+
+        if (req.getRequestSettings() != null) {
+            followRedirectsCheck.setSelected(req.getRequestSettings().getOrDefault("followRedirects", true));
+            verifySslCheck.setSelected(req.getRequestSettings().getOrDefault("verifySsl", true));
+        }
+
+        // Params
+        queryParamsData.clear();
+        if (req.getQueryParams() != null) {
+            req.getQueryParams().forEach((k, v) -> queryParamsData.add(new KeyValuePair(k, v)));
+        }
+
+        // Headers
+        headersData.clear();
+        if (req.getHeaders() != null) {
+            req.getHeaders().forEach((k, v) -> headersData.add(new KeyValuePair(k, v)));
+        }
+
+        // Auth
+        authTypeComboBox.setValue(req.getAuthType());
+        if (req.getAuthConfig() != null) {
+            authUsernameField.setText(req.getAuthConfig().getOrDefault("username", ""));
+            authPasswordField.setText(req.getAuthConfig().getOrDefault("password", ""));
+            authTokenField.setText(req.getAuthConfig().getOrDefault("token", ""));
+            apiKeyNameField.setText(req.getAuthConfig().getOrDefault("key", ""));
+            apiKeyValueField.setText(req.getAuthConfig().getOrDefault("value", ""));
+        }
+        onAuthTypeChanged(null);
+    }
+
+    private void refreshHistoryView() {
+        historyListItems.clear();
+        for (HistoryEntry entry : historyList) {
+            ApiRequest req = entry.getRequest();
+            historyListItems.add(String.format("[%s] %s (%dms)", req.getMethod(), req.getUrl(), entry.getResponseTimeMs()));
+        }
+        historyListView.setItems(historyListItems);
+    }
+
+    private void loadExampleIntoUI(com.apiforge.studio.model.RequestExample ex) {
+        this.currentExample = ex;
+        lastResponseBody = ex.getResponseBody();
+        lastResponseStatus = ex.getStatusCode();
+        
+        saveExampleButton.setVisible(true);
+        saveExampleButton.setManaged(true);
+        sendButton.setVisible(false);
+        sendButton.setManaged(false);
+        
+        statusBadge.setVisible(false);
+        statusBadge.setManaged(false);
+        exampleStatusCodeField.setVisible(true);
+        exampleStatusCodeField.setManaged(true);
+        exampleStatusCodeField.setText(String.valueOf(ex.getStatusCode()));
+        
+        responsePrettyWebView.setVisible(false);
+        responsePrettyWebView.setManaged(false);
+        exampleBodyEditor.setVisible(true);
+        exampleBodyEditor.setManaged(true);
+        exampleBodyEditor.setText(ex.getResponseBody());
+        
+        responseHeadersData.clear();
+        if (ex.getResponseHeaders() != null) {
+            ex.getResponseHeaders().forEach((k, v) -> responseHeadersData.add(new KeyValuePair(k, v)));
+        }
+        addExampleHeaderBtn.setVisible(true);
+        addExampleHeaderBtn.setManaged(true);
+        responseHeadersTable.setEditable(true);
+
+        timeLabel.setText("0 ms");
+        double sizeKb = (lastResponseBody != null ? lastResponseBody.getBytes().length : 0) / 1024.0;
+        sizeLabel.setText(String.format("%.2f KB", sizeKb));
+
+        boolean isLightMode = "Light Mode".equals(themeComboBox.getValue());
+        responseWebView.getEngine().loadContent(generateRichVisualizerHtml(lastResponseBody, isLightMode));
+    }
+    
+    @FXML
+    private void saveExample(ActionEvent event) {
+        if (currentExample != null) {
+            String body = exampleBodyEditor.getText();
+            int status = currentExample.getStatusCode();
+            try {
+                status = Integer.parseInt(exampleStatusCodeField.getText());
+            } catch (NumberFormatException e) {
+                showError("Invalid status code");
+                return;
+            }
+            
+            java.util.Map<String, String> hdrs = new HashMap<>();
+            for (KeyValuePair kv : responseHeadersData) {
+                if (kv.getKey() != null && !kv.getKey().trim().isEmpty()) {
+                    hdrs.put(kv.getKey(), kv.getValue());
+                }
+            }
+            String hdrsJson = "{}";
+            try {
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                hdrsJson = mapper.writeValueAsString(hdrs);
+            } catch (Exception e) {}
+            
+            databaseService.updateExample(currentExample.getId(), currentExample.getName(), status, body, hdrsJson);
+            currentExample.setStatusCode(status);
+            currentExample.setResponseBody(body);
+            currentExample.setResponseHeaders(hdrs);
+            showInfo("Saved", "Example updated successfully!");
+        }
+    }
+    
+    @FXML
+    private void addExampleHeader(ActionEvent event) {
+        responseHeadersData.add(new KeyValuePair("New-Header", "value"));
+    }
+
+    private void refreshCollectionsTree() {
+        int wsId = getActiveWorkspaceId();
+        collectionsList = databaseService.getCollections(wsId);
+        TreeItem<Object> rootItem = new TreeItem<>("Collections Workspace");
+        rootItem.setExpanded(true);
+
+        for (com.apiforge.studio.model.Collection col : collectionsList) {
+            TreeItem<Object> colNode = new TreeItem<>(col);
+            colNode.setExpanded(true);
+            
+            // Add folders
+            for (com.apiforge.studio.model.Folder fold : col.getFolders()) {
+                TreeItem<Object> foldNode = new TreeItem<>(fold);
+                foldNode.setExpanded(true);
+                for (ApiRequest req : fold.getRequests()) {
+                    TreeItem<Object> reqNode = new TreeItem<>(req);
+                    for (com.apiforge.studio.model.RequestExample ex : req.getExamples()) {
+                        reqNode.getChildren().add(new TreeItem<>(ex));
+                    }
+                    foldNode.getChildren().add(reqNode);
+                }
+                colNode.getChildren().add(foldNode);
+            }
+
+            // Add direct collection requests
+            for (ApiRequest req : col.getRequests()) {
+                TreeItem<Object> reqNode = new TreeItem<>(req);
+                for (com.apiforge.studio.model.RequestExample ex : req.getExamples()) {
+                    reqNode.getChildren().add(new TreeItem<>(ex));
+                }
+                colNode.getChildren().add(reqNode);
+            }
+
+            rootItem.getChildren().add(colNode);
+        }
+
+        collectionsTreeView.setRoot(rootItem);
+        collectionsTreeView.setShowRoot(false);
+    }
+
+    private void setupCollectionsContextMenu() {
+        collectionsTreeView.setCellFactory(tv -> {
+            TreeCell<Object> cell = new TreeCell<Object>() {
+                @Override
+                protected void updateItem(Object item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        setContextMenu(null);
+                    } else {
+                        setText(item.toString());
+                        setGraphic(null);
+
+                        ContextMenu menu = new ContextMenu();
+                        if (item instanceof com.apiforge.studio.model.Collection) {
+                            com.apiforge.studio.model.Collection col = (com.apiforge.studio.model.Collection) item;
+                            
+                            MenuItem addFolderItem = new MenuItem("Add Folder");
+                            addFolderItem.setOnAction(e -> promptCreateFolder(col.getId()));
+                            MenuItem addRequestItem = new MenuItem("Add Request");
+                            addRequestItem.setOnAction(e -> {
+                                promptRename("New Request", "My Request").ifPresent(name -> {
+                                    com.apiforge.studio.model.ApiRequest req = new com.apiforge.studio.model.ApiRequest();
+                                    req.setProtocol("REST");
+                                    req.setMethod("GET");
+                                    req.setUrl("http://");
+                                    databaseService.saveRequest(getActiveWorkspaceId(), col.getId(), null, name, req);
+                                    refreshCollectionsTree();
+                                });
+                            });
+                            MenuItem exportItem = new MenuItem("Export");
+                            exportItem.setOnAction(e -> exportCollection(col));
+                            MenuItem renameItem = new MenuItem("Rename");
+                            renameItem.setOnAction(e -> {
+                                promptRename("Collection", col.getName()).ifPresent(newName -> {
+                                    databaseService.renameCollection(col.getId(), newName);
+                                    refreshCollectionsTree();
+                                });
+                            });
+                            MenuItem dupItem = new MenuItem("Duplicate");
+                            dupItem.setOnAction(e -> {
+                                databaseService.duplicateCollection(col.getId());
+                                refreshCollectionsTree();
+                            });
+                            MenuItem shareItem = new MenuItem("Share");
+                            shareItem.setOnAction(e -> showMockShare("Collection"));
+                            MenuItem deleteColItem = new MenuItem("Delete");
+                            deleteColItem.setOnAction(e -> {
+                                databaseService.deleteCollection(col.getId());
+                                refreshCollectionsTree();
+                            });
+                            
+                            menu.getItems().addAll(addFolderItem, addRequestItem, new SeparatorMenuItem(), exportItem, renameItem, dupItem, shareItem, new SeparatorMenuItem(), deleteColItem);
+                        } else if (item instanceof com.apiforge.studio.model.Folder) {
+                            com.apiforge.studio.model.Folder fold = (com.apiforge.studio.model.Folder) item;
+                            
+                            MenuItem addReqItem = new MenuItem("Add Request");
+                            addReqItem.setOnAction(e -> promptSaveRequestToCollection(fold.getCollectionId(), fold.getId()));
+                            MenuItem renameItem = new MenuItem("Rename");
+                            renameItem.setOnAction(e -> {
+                                promptRename("Folder", fold.getName()).ifPresent(newName -> {
+                                    databaseService.renameFolder(fold.getId(), newName);
+                                    refreshCollectionsTree();
+                                });
+                            });
+                            MenuItem dupItem = new MenuItem("Duplicate");
+                            dupItem.setOnAction(e -> {
+                                databaseService.duplicateFolder(fold.getId());
+                                refreshCollectionsTree();
+                            });
+                            MenuItem shareItem = new MenuItem("Share");
+                            shareItem.setOnAction(e -> showMockShare("Folder"));
+                            MenuItem deleteFoldItem = new MenuItem("Delete");
+                            deleteFoldItem.setOnAction(e -> {
+                                databaseService.deleteFolder(fold.getId());
+                                refreshCollectionsTree();
+                            });
+                            
+                            menu.getItems().addAll(addReqItem, new SeparatorMenuItem(), renameItem, dupItem, shareItem, new SeparatorMenuItem(), deleteFoldItem);
+                        } else if (item instanceof ApiRequest) {
+                            ApiRequest req = (ApiRequest) item;
+                            
+                            MenuItem addExampleItem = new MenuItem("Add example");
+                            addExampleItem.setOnAction(e -> {
+                                promptRename("Example", "Mock Response").ifPresent(name -> {
+                                    String body = lastResponseBody != null ? lastResponseBody : "{}";
+                                    int status = lastResponseStatus != 0 ? lastResponseStatus : 200;
+                                    databaseService.addExample(Integer.parseInt(req.getId()), name, status, body, "{}");
+                                    refreshCollectionsTree();
+                                });
+                            });
+                            MenuItem renameItem = new MenuItem("Rename");
+                            renameItem.setOnAction(e -> {
+                                promptRename("Request", req.getCustomName() != null ? req.getCustomName() : req.getUrl()).ifPresent(newName -> {
+                                    databaseService.renameSavedRequest(Integer.parseInt(req.getId()), newName);
+                                    refreshCollectionsTree();
+                                });
+                            });
+                            MenuItem dupItem = new MenuItem("Duplicate");
+                            dupItem.setOnAction(e -> {
+                                databaseService.duplicateSavedRequest(Integer.parseInt(req.getId()));
+                                refreshCollectionsTree();
+                            });
+                            MenuItem shareItem = new MenuItem("Share");
+                            shareItem.setOnAction(e -> showMockShare("Request"));
+                            MenuItem copyLinkItem = new MenuItem("Copy link");
+                            copyLinkItem.setOnAction(e -> showMockShare("Request Link"));
+                            MenuItem deleteReqItem = new MenuItem("Delete");
+                            deleteReqItem.setOnAction(e -> {
+                                databaseService.deleteSavedRequest(Integer.parseInt(req.getId()));
+                                refreshCollectionsTree();
+                            });
+                            menu.getItems().addAll(addExampleItem, new SeparatorMenuItem(), shareItem, copyLinkItem, new SeparatorMenuItem(), renameItem, dupItem, new SeparatorMenuItem(), deleteReqItem);
+                        } else if (item instanceof com.apiforge.studio.model.RequestExample) {
+                            com.apiforge.studio.model.RequestExample ex = (com.apiforge.studio.model.RequestExample) item;
+                            MenuItem renameExItem = new MenuItem("Rename");
+                            renameExItem.setOnAction(e -> showInfo("Not Yet Implemented", "Rename example will be added later."));
+                            MenuItem deleteExItem = new MenuItem("Delete Example");
+                            deleteExItem.setOnAction(e -> {
+                                databaseService.deleteExample(ex.getId());
+                                refreshCollectionsTree();
+                            });
+                            menu.getItems().addAll(renameExItem, new SeparatorMenuItem(), deleteExItem);
+                        }
+                        setContextMenu(menu);
+                    }
+                }
+            };
+            return cell;
+        });
+    }
+
+    private java.util.Optional<String> promptRename(String type, String currentName) {
+        TextInputDialog dialog = new TextInputDialog(currentName);
+        dialog.setTitle("Rename " + type);
+        dialog.setHeaderText("Enter new name for " + type);
+        dialog.setContentText("Name:");
+        return dialog.showAndWait().filter(name -> !name.trim().isEmpty());
+    }
+
+    private void showInfo(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void showMockShare(String type) {
+        String mockLink = "apiforge://" + type.toLowerCase() + "/" + java.util.UUID.randomUUID().toString().substring(0, 8);
+        javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
+        javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
+        content.putString(mockLink);
+        clipboard.setContent(content);
+        showInfo("Link Copied", type + " share link copied to clipboard:\n" + mockLink);
+    }
+
+
+    private int getActiveWorkspaceId() {
+        if (workspaceComboBox != null && workspaceComboBox.getValue() != null) {
+            return workspaceComboBox.getValue().getId();
+        }
+        return 1;
+    }
+
+    @FXML
+    private void onWorkspaceChanged(ActionEvent event) {
+        refreshCollectionsTree();
+        refreshEnvironments();
+    }
+
+    private void refreshEnvironments() {
+        if (environmentComboBox != null && environmentService != null) {
+            int wsId = getActiveWorkspaceId();
+            environmentComboBox.getItems().clear();
+            environmentComboBox.getItems().addAll(environmentService.getEnvironments(wsId));
+        }
+    }
+
+    @FXML
+    private void onEnvironmentChanged(ActionEvent event) {
+        // Handle environment change if needed
+    }
+
+    @FXML
+    private void manageEnvironments(ActionEvent event) {
+        showInfo("Environments", "Environment management dialog will be added here.");
+    }
+
+    @FXML
+    private void createNewWorkspace(ActionEvent event) {
+        TextInputDialog nameDialog = new TextInputDialog("New Workspace");
+        nameDialog.setTitle("Create Workspace");
+        nameDialog.setHeaderText("Create a new logical Workspace container");
+        nameDialog.setContentText("Workspace Name:");
+        
+        nameDialog.showAndWait().ifPresent(name -> {
+            if (!name.trim().isEmpty()) {
+                List<String> types = java.util.Arrays.asList("PERSONAL", "TEAM", "ENTERPRISE");
+                ChoiceDialog<String> typeChoice = new ChoiceDialog<>("PERSONAL", types);
+                typeChoice.setTitle("Workspace Type");
+                typeChoice.setHeaderText("Select workspace tier classification");
+                typeChoice.setContentText("Type:");
+                typeChoice.showAndWait().ifPresent(type -> {
+                    databaseService.createWorkspace(name.trim(), type);
+                    refreshWorkspacesSelector();
+                });
+            }
+        });
+    }
+
+    private void refreshWorkspacesSelector() {
+        List<com.apiforge.studio.model.Workspace> list = databaseService.getWorkspaces();
+        workspaceComboBox.getItems().clear();
+        workspaceComboBox.getItems().addAll(list);
+        if (!list.isEmpty()) {
+            workspaceComboBox.setValue(list.get(0));
+        }
+        refreshCollectionsTree();
+        refreshEnvironments();
+    }
+
+    private void promptSaveRequestToCollection(Integer defaultColId, Integer defaultFolderId) {
+        updateRequestFromUI();
+        int wsId = getActiveWorkspaceId();
+        
+        TextInputDialog nameDialog = new TextInputDialog("My Request");
+        nameDialog.setTitle("Save Request");
+        nameDialog.setHeaderText("Save current request to your workspace");
+        nameDialog.setContentText("Enter request display name:");
+        
+        nameDialog.showAndWait().ifPresent(requestName -> {
+            if (defaultColId == null && defaultFolderId == null) {
+                List<com.apiforge.studio.model.Collection> cols = databaseService.getCollections(wsId);
+                if (cols.isEmpty()) {
+                    int colId = databaseService.createCollection(wsId, "Default Collection");
+                    databaseService.saveRequest(wsId, colId, null, requestName, currentRequest);
+                } else {
+                    ChoiceDialog<com.apiforge.studio.model.Collection> colChoice = new ChoiceDialog<>(cols.get(0), cols);
+                    colChoice.setTitle("Select Collection");
+                    colChoice.setHeaderText("Choose destination Collection");
+                    colChoice.setContentText("Collection:");
+                    
+                    colChoice.showAndWait().ifPresent(chosenCol -> {
+                        databaseService.saveRequest(wsId, chosenCol.getId(), null, requestName, currentRequest);
+                    });
+                }
+            } else {
+                databaseService.saveRequest(wsId, defaultColId, defaultFolderId, requestName, currentRequest);
+            }
+            refreshCollectionsTree();
+        });
+    }
+
+    @FXML
+    private void createNewCollection(ActionEvent event) {
+        TextInputDialog dialog = new TextInputDialog("New Collection");
+        dialog.setTitle("Create Collection");
+        dialog.setHeaderText("Create a new Collections suite");
+        dialog.setContentText("Collection Name:");
+        int wsId = getActiveWorkspaceId();
+        dialog.showAndWait().ifPresent(name -> {
+            if (!name.trim().isEmpty()) {
+                databaseService.createCollection(wsId, name.trim());
+                refreshCollectionsTree();
+            }
+        });
+    }
+
+    @FXML
+    private void createNewFolder(ActionEvent event) {
+        int wsId = getActiveWorkspaceId();
+        List<com.apiforge.studio.model.Collection> cols = databaseService.getCollections(wsId);
+        if (cols.isEmpty()) {
+            showError("Please create a Collection first!");
+            return;
+        }
+        
+        ChoiceDialog<com.apiforge.studio.model.Collection> colChoice = new ChoiceDialog<>(cols.get(0), cols);
+        colChoice.setTitle("Select Collection");
+        colChoice.setHeaderText("Select which Collection to place folder in");
+        colChoice.setContentText("Collection:");
+        
+        colChoice.showAndWait().ifPresent(chosenCol -> {
+            TextInputDialog nameDialog = new TextInputDialog("New Folder");
+            nameDialog.setTitle("Create Folder");
+            nameDialog.setHeaderText("Create folder inside " + chosenCol.getName());
+            nameDialog.setContentText("Folder Name:");
+            nameDialog.showAndWait().ifPresent(folderName -> {
+                if (!folderName.trim().isEmpty()) {
+                    databaseService.createFolder(chosenCol.getId(), folderName.trim());
+                    refreshCollectionsTree();
+                }
+            });
+        });
+    }
+
+    private void promptCreateFolder(int colId) {
+        TextInputDialog dialog = new TextInputDialog("New Folder");
+        dialog.setTitle("Create Folder");
+        dialog.setHeaderText("Add folder to collection");
+        dialog.setContentText("Folder Name:");
+        dialog.showAndWait().ifPresent(name -> {
+            if (!name.trim().isEmpty()) {
+                databaseService.createFolder(colId, name.trim());
+                refreshCollectionsTree();
+            }
+        });
+    }
+
+    private void filterHistory(String query) {
+        if (query == null || query.isEmpty()) {
+            refreshHistoryView();
+            return;
+        }
+        List<String> filtered = historyList.stream()
+                .filter(e -> e.getRequest().getUrl().toLowerCase().contains(query.toLowerCase()))
+                .map(e -> String.format("[%s] %s (%dms)", e.getRequest().getMethod(), e.getRequest().getUrl(), e.getResponseTimeMs()))
+                .collect(Collectors.toList());
+        historyListView.setItems(FXCollections.observableArrayList(filtered));
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private String formatJson(String rawJson) {
+        if (rawJson == null || rawJson.trim().isEmpty()) {
+            return "";
+        }
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            Object jsonObject = mapper.readValue(rawJson, Object.class);
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
+        } catch (Exception e) {
+            return rawJson; // Fallback to raw string if it's not valid JSON
+        }
+    }
+
+    private String getBackendUrl() {
+        String baseUrl = "http://localhost:8080";
+        java.io.File configFile = new java.io.File("config.properties");
+        if (configFile.exists()) {
+            try (java.io.FileInputStream fis = new java.io.FileInputStream(configFile)) {
+                java.util.Properties props = new java.util.Properties();
+                props.load(fis);
+                baseUrl = props.getProperty("backend.url", baseUrl);
+            } catch (Exception e) {
+                System.err.println("Failed to read config.properties: " + e.getMessage());
+            }
+        }
+        return baseUrl;
+    }
+
+    private void postHistoryToBackend(String method, String url, int statusCode, long responseTime) {
+        new Thread(() -> {
+            try {
+                // Offline caching
+                if (databaseService != null) {
+                    databaseService.cacheRequest(java.util.UUID.randomUUID().toString(), method, url, statusCode, responseTime);
+                }
+
+                java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+                // Escape simple JSON characters in URL
+                String safeUrl = url.replace("\"", "\\\"");
+                String json = String.format("{\"method\":\"%s\",\"url\":\"%s\",\"statusCode\":%d,\"responseTimeMs\":%d}",
+                        method, safeUrl, statusCode, responseTime);
+                String backendUrl = getBackendUrl();
+                java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder()
+                        .uri(java.net.URI.create(backendUrl + "/api/history"))
+                        .header("Content-Type", "application/json")
+                        .POST(java.net.http.HttpRequest.BodyPublishers.ofString(json))
+                        .build();
+                client.send(req, java.net.http.HttpResponse.BodyHandlers.discarding());
+            } catch (Exception e) {
+                System.err.println("Could not sync history to Spring Boot backend: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    @FXML
+    private void generateAiTests(ActionEvent event) {
+        String method = methodComboBox.getValue();
+        String url = urlTextField.getText();
+        
+        String testOutput = String.format(
+            "// ==========================================\n" +
+            "// AI GENERATED TEST SUITE FOR %s: %s\n" +
+            "// ==========================================\n\n" +
+            "// 1. Positive Verification Case\n" +
+            "describe('Verify standard response', () => {\n" +
+            "    expect(response.statusCode).toBe(200);\n" +
+            "    expect(response.headers['Content-Type']).toContain('application/json');\n" +
+            "    expect(response.body).toBeNonNull();\n" +
+            "});\n\n" +
+            "// 2. Performance SLA Checklist\n" +
+            "describe('Verify latency compliance', () => {\n" +
+            "    expect(response.responseTimeMs).toBeLessThan(500); // 500ms limit\n" +
+            "});\n\n" +
+            "// 3. Security Analysis\n" +
+            "describe('Verify SSL & Encryption headers', () => {\n" +
+            "    expect(response.headers['Strict-Transport-Security']).toBeDefined();\n" +
+            "});\n", method, url
+        );
+        aiResponseTextArea.setText(testOutput);
+    }
+
+    @FXML
+    private void generateAiMockPayload(ActionEvent event) {
+        String url = urlTextField.getText();
+        String mockPayload = 
+            "{\n" +
+            "  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" +
+            "  \"title\": \"APIResponseMock\",\n" +
+            "  \"type\": \"object\",\n" +
+            "  \"properties\": {\n" +
+            "    \"status\": { \"type\": \"string\", \"example\": \"success\" },\n" +
+            "    \"data\": {\n" +
+            "      \"type\": \"array\",\n" +
+            "      \"items\": {\n" +
+            "        \"type\": \"object\",\n" +
+            "        \"properties\": {\n" +
+            "          \"id\": { \"type\": \"integer\", \"example\": 101 },\n" +
+            "          \"name\": { \"type\": \"string\", \"example\": \"Mock Resource\" }\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        aiResponseTextArea.setText(mockPayload);
+    }
+
+    @FXML
+    private void generateAiExplanation(ActionEvent event) {
+        String method = methodComboBox.getValue();
+        String url = urlTextField.getText();
+        
+        String explanation = String.format(
+            "### Endpoint Explanation\n" +
+            "- **Method**: `%s`\n" +
+            "- **Target URL**: `%s`\n\n" +
+            "### Expected Behavior\n" +
+            "This endpoint serves REST requests. In standard systems, a `%s` call on this URL requires valid " +
+            "authorization credentials. Ensure that you have specified a `Bearer Token` or `Basic Authentication` " +
+            "credentials under the 'Authorization' tab if the service returns 401 Unauthorized status.",
+            method, url, method
+        );
+        aiResponseTextArea.setText(explanation);
+    }
+
+    @FXML
+    private void runLoadSimulation(ActionEvent event) {
+        String url = urlTextField.getText();
+        String method = methodComboBox.getValue();
+        String body = bodyTextArea.getText();
+
+        if (url == null || url.trim().isEmpty()) {
+            showError("Please specify a valid Target URL before running load testing.");
+            return;
+        }
+
+        int threads = 10;
+        int runs = 50;
+        try {
+            threads = Integer.parseInt(loadUsersField.getText());
+            runs = Integer.parseInt(loadLoopsField.getText());
+        } catch (NumberFormatException e) {
+            loadTestResultsTextArea.setText("Invalid input format for threads/runs. Defaulting to 10 threads, 50 loops.");
+        }
+
+        final int finalThreads = threads;
+        final int finalRuns = runs;
+
+        loadTestResultsTextArea.setText("[System]: Starting load simulation with " + finalThreads + " concurrent threads...\n");
+        
+        loadTestingService.runLoadTest(url, method, body, finalThreads, finalRuns, result -> {
+            Platform.runLater(() -> {
+                String report = String.format(
+                    "==========================================\n" +
+                    "           LOAD TEST METRICS REPORT       \n" +
+                    "==========================================\n" +
+                    "Status: Completed Successfully\n" +
+                    "Target URL: %s\n" +
+                    "Concurrent Users/Threads: %d\n" +
+                    "Total Requests Dispatched: %d\n" +
+                    "Success Code 2xx Count: %d\n" +
+                    "Error/Failures Count: %d\n" +
+                    "Throughput (TPS): %.2f req/sec\n\n" +
+                    "--- LATENCY METRICS ---\n" +
+                    "Minimum Latency: %d ms\n" +
+                    "Maximum Latency: %d ms\n" +
+                    "Average Latency: %.2f ms\n" +
+                    "Median (P50) Latency: %d ms\n" +
+                    "90th Percentile (P90): %d ms\n" +
+                    "99th Percentile (P99): %d ms\n" +
+                    "==========================================\n",
+                    url, finalThreads, result.totalRequests, 
+                    result.successCount, result.failureCount, result.tps,
+                    result.minLatencyMs, result.maxLatencyMs, result.avgLatencyMs,
+                    result.p50Ms, result.p90Ms, result.p99Ms
+                );
+                loadTestResultsTextArea.setText(report);
+                
+                // POST to backend API
+                new Thread(() -> {
+                    try {
+                        java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+                        String requestBody = String.format(
+                            "{\"workspaceId\":\"%s\",\"url\":\"%s\",\"method\":\"%s\",\"concurrentUsers\":%d,\"totalRequests\":%d,\"successCount\":%d,\"failureCount\":%d,\"minLatencyMs\":%d,\"maxLatencyMs\":%d,\"avgLatencyMs\":%.2f,\"p50Ms\":%d,\"p90Ms\":%d,\"p99Ms\":%d,\"tps\":%.2f}",
+                            "00000000-0000-0000-0000-000000000001", // Default workspace ID
+                            url, method, finalThreads, result.totalRequests,
+                            result.successCount, result.failureCount,
+                            result.minLatencyMs, result.maxLatencyMs, result.avgLatencyMs,
+                            result.p50Ms, result.p90Ms, result.p99Ms, result.tps
+                        );
+                        java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder()
+                                .uri(java.net.URI.create("http://localhost:8082/api/v1/load-test-results"))
+                                .header("Content-Type", "application/json")
+                                .POST(java.net.http.HttpRequest.BodyPublishers.ofString(requestBody))
+                                .build();
+                        client.send(req, java.net.http.HttpResponse.BodyHandlers.discarding());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            });
+        });
+    }
+
+    @FXML
+    private void registerCloudMockRoute(ActionEvent event) {
+        String path = mockPathField.getText();
+        String body = mockBodyField.getText();
+        
+        if (path == null || path.trim().isEmpty() || body == null) {
+            showError("Path and response body cannot be empty.");
+            return;
+        }
+
+        int status = 200;
+        long delay = 0;
+        try {
+            status = Integer.parseInt(mockStatusField.getText().trim());
+            delay = Long.parseLong(mockDelayField.getText().trim());
+        } catch (NumberFormatException e) {
+            // Default fallbacks
+        }
+
+        final int finalStatus = status;
+        final long finalDelay = delay;
+
+        new Thread(() -> {
+            try {
+                String backendUrl = getBackendUrl();
+                // Escape simple JSON chars in mock response body
+                String escapedBody = body.replace("\"", "\\\"").replace("\n", "\\n");
+                String json = String.format("{\"method\":\"GET\",\"path\":\"%s\",\"responseBody\":\"%s\",\"statusCode\":%d,\"delayMs\":%d}",
+                        path, escapedBody, finalStatus, finalDelay);
+
+                java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+                java.net.http.HttpRequest req = java.net.http.HttpRequest.newBuilder()
+                        .uri(java.net.URI.create(backendUrl + "/api/mocks"))
+                        .header("Content-Type", "application/json")
+                        .POST(java.net.http.HttpRequest.BodyPublishers.ofString(json))
+                        .build();
+
+                java.net.http.HttpResponse<String> resp = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofString());
+                Platform.runLater(() -> {
+                    if (resp.statusCode() >= 200 && resp.statusCode() < 300) {
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Mock Created");
+                        alert.setHeaderText(null);
+                        alert.setContentText("Mock route created successfully on the server! Active URL path: " + path);
+                        alert.showAndWait();
+                        mockPathField.clear();
+                        mockBodyField.clear();
+                    } else {
+                        showError("Failed to register mock route: " + resp.body());
+                    }
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> showError("Network error creating mock endpoint: " + e.getMessage()));
+            }
+        }).start();
+    }
+
+    @FXML
+    private void onThemeChanged(ActionEvent event) {
+        String theme = themeComboBox.getValue();
+        boolean isLight = "Light Mode".equals(theme);
+        if (!isLight) {
+            if (!rootContainer.getStyleClass().contains("dark-theme")) {
+                rootContainer.getStyleClass().add("dark-theme");
+            }
+        } else {
+            rootContainer.getStyleClass().remove("dark-theme");
+        }
+
+        if (lastResponseBody != null) {
+            responseWebView.getEngine().loadContent(generateRichVisualizerHtml(lastResponseBody, isLight));
+            responsePrettyWebView.getEngine().loadContent(generateHighlightedJsonHtml(formatJson(lastResponseBody), isLight));
+        } else {
+            String bg = isLight ? "#ffffff" : "#1e1e1e";
+            String html = "<html><body style='background-color:" + bg + "; margin:0;'></body></html>";
+            responseWebView.getEngine().loadContent(html);
+            if (responsePrettyWebView != null) {
+                responsePrettyWebView.getEngine().loadContent(html);
+            }
+        }
+    }
+
+    private String generateHighlightedJsonHtml(String json, boolean isLightMode) {
+        if (json == null) json = "";
+        String escapedJson = json.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        String themeCss = isLightMode ? "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" 
+                                      : "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css";
+        String bg = isLightMode ? "#fafafa" : "#1e1e1e";
+        
+        return "<!DOCTYPE html><html><head>" +
+               "<link href=\"" + themeCss + "\" rel=\"stylesheet\" />" +
+               "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js\"></script>" +
+               "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js\"></script>" +
+               "<style>body { background-color: " + bg + "; margin: 0; padding: 10px; font-size: 13px; } pre { margin: 0 !important; border: none !important; background: transparent !important; }</style>" +
+               "</head><body>" +
+               "<pre><code class=\"language-json\">" + escapedJson + "</code></pre>" +
+               "</body></html>";
+    }
+
+    private String generateRichVisualizerHtml(String jsonBody, boolean isLightMode) {
+        if (jsonBody == null || jsonBody.trim().isEmpty()) {
+            return "<html><body><p style='color:gray;'>No content</p></body></html>";
+        }
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode rootNode = mapper.readTree(jsonBody);
+
+            com.fasterxml.jackson.databind.JsonNode arrayNode = null;
+            if (rootNode.isArray()) {
+                arrayNode = rootNode;
+            } else if (rootNode.isObject()) {
+                java.util.Iterator<Map.Entry<String, com.fasterxml.jackson.databind.JsonNode>> fields = rootNode.fields();
+                while (fields.hasNext()) {
+                    Map.Entry<String, com.fasterxml.jackson.databind.JsonNode> field = fields.next();
+                    if (field.getValue().isArray()) {
+                        arrayNode = field.getValue();
+                        break;
+                    }
+                }
+            }
+
+            if (arrayNode == null || arrayNode.size() == 0) {
+                return "<html><body style='background-color:" + (isLightMode ? "#ffffff" : "#1a1a1e") + "; color:" + (isLightMode ? "#0f172a" : "#e3e3e6") + "; font-family:monospace; padding:15px;'>"
+                        + "<h3>JSON Object Details</h3><pre>" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode) + "</pre></body></html>";
+            }
+
+            List<String> headers = new java.util.ArrayList<>();
+            com.fasterxml.jackson.databind.JsonNode firstElement = arrayNode.get(0);
+            if (firstElement.isObject()) {
+                java.util.Iterator<String> fieldNames = firstElement.fieldNames();
+                while (fieldNames.hasNext()) {
+                    headers.add(fieldNames.next());
+                }
+            } else {
+                headers.add("value");
+            }
+
+            StringBuilder html = new StringBuilder();
+            html.append("<!DOCTYPE html><html><head><meta charset='UTF-8'>");
+            html.append("<style>");
+            if (isLightMode) {
+                html.append("body { background-color: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 15px; font-size: 13px; }");
+                html.append("table { width: 100%; border-collapse: collapse; margin-top: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 6px; overflow: hidden; }");
+                html.append("th { background-color: #f1f5f9; color: #475569; text-align: left; padding: 10px; font-weight: 600; border-bottom: 1px solid #e2e8f0; }");
+                html.append("td { padding: 10px; border-bottom: 1px solid #f1f5f9; color: #334155; }");
+                html.append("tr:nth-child(even) { background-color: #f8fafc; }");
+                html.append("tr:hover { background-color: #f1f5f9; }");
+                html.append(".search-box { width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; margin-bottom: 12px; box-sizing: border-box; }");
+            } else {
+                html.append("body { background-color: #1a1a1e; color: #e3e3e6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 15px; font-size: 13px; }");
+                html.append("table { width: 100%; border-collapse: collapse; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden; }");
+                html.append("th { background-color: #27272a; color: #a1a1aa; text-align: left; padding: 10px; font-weight: 600; border-bottom: 1px solid #3f3f46; }");
+                html.append("td { padding: 10px; border-bottom: 1px solid #27272a; color: #d4d4d8; }");
+                html.append("tr:nth-child(even) { background-color: #1e1e24; }");
+                html.append("tr:hover { background-color: #2e303f; }");
+                html.append(".search-box { width: 100%; padding: 8px 12px; background-color: #121214; border: 1px solid #3f3f46; color: white; border-radius: 6px; outline: none; margin-bottom: 12px; box-sizing: border-box; }");
+            }
+            html.append(".img-thumb { height: 35px; width: 35px; border-radius: 50%; object-fit: cover; border: 1px solid #cbd5e1; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }");
+            html.append("</style></head><body>");
+
+            html.append("<input type='text' id='search' class='search-box' placeholder='Filter results in real-time...'>");
+
+            html.append("<table id='visualizerTable'><thead><tr>");
+            for (String h : headers) {
+                html.append("<th>").append(h).append("</th>");
+            }
+            html.append("</tr></thead><tbody>");
+
+            for (int i = 0; i < arrayNode.size(); i++) {
+                com.fasterxml.jackson.databind.JsonNode item = arrayNode.get(i);
+                html.append("<tr>");
+                for (String h : headers) {
+                    com.fasterxml.jackson.databind.JsonNode valNode = item.get(h);
+                    String val = (valNode == null) ? "" : valNode.asText();
+                    if (val.startsWith("http") && (val.toLowerCase().contains("image") || val.toLowerCase().contains("icon") || val.toLowerCase().endsWith(".png") || val.toLowerCase().endsWith(".jpg") || val.toLowerCase().endsWith(".jpeg") || val.toLowerCase().endsWith(".webp"))) {
+                        html.append("<td><img src='").append(val).append("' class='img-thumb' onerror='this.style.display=\"none\"' /></td>");
+                    } else {
+                        html.append("<td>").append(val).append("</td>");
+                    }
+                }
+                html.append("</tr>");
+            }
+            html.append("</tbody></table>");
+
+            html.append("<script>");
+            html.append("document.getElementById('search').addEventListener('keyup', function() {");
+            html.append("  var filter = this.value.toLowerCase();");
+            html.append("  var rows = document.querySelectorAll('#visualizerTable tbody tr');");
+            html.append("  rows.forEach(function(row) {");
+            html.append("    var show = false;");
+            html.append("    var tds = row.getElementsByTagName('td');");
+            html.append("    for (var i = 0; i < tds.length; i++) {");
+            html.append("      if (tds[i].textContent.toLowerCase().indexOf(filter) > -1) { show = true; break; }");
+            html.append("    }");
+            html.append("    row.style.display = show ? '' : 'none';");
+            html.append("  });");
+            html.append("});");
+            html.append("</script>");
+
+            html.append("</body></html>");
+            return html.toString();
+        } catch (Exception e) {
+            return "<html><body><h3>Visualizer Parsing Error</h3><pre>" + e.getMessage() + "</pre></body></html>";
+        }
+    }
+
+    @FXML
+    private void showImportDialog(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/apiforge/studio/import_modal.fxml"));
+            Parent root = loader.load();
+            ImportController importController = loader.getController();
+            importController.setMainController(this);
+            
+            Stage stage = new Stage();
+            stage.setTitle("Import");
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            Scene scene = new Scene(root, 650, 500);
+            
+            // Apply current theme
+            if ("Dark Mode".equals(themeComboBox.getValue())) {
+                scene.getRoot().getStyleClass().add("dark-theme");
+            }
+            
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Failed to open Import dialog: " + e.getMessage());
+        }
+    }
+
+    public void importFromCurl(String curlCommand) {
+        try {
+            String method = "GET";
+            if (curlCommand.contains("-X POST") || curlCommand.contains("--request POST")) method = "POST";
+            else if (curlCommand.contains("-X PUT") || curlCommand.contains("--request PUT")) method = "PUT";
+            else if (curlCommand.contains("-X DELETE") || curlCommand.contains("--request DELETE")) method = "DELETE";
+
+            String url = "";
+            String[] parts = curlCommand.split(" ");
+            for (String p : parts) {
+                if (p.startsWith("http://") || p.startsWith("https://") || p.startsWith("'http") || p.startsWith("\"http")) {
+                    url = p.replace("'", "").replace("\"", "");
+                    break;
+                }
+            }
+            if (url.isEmpty()) url = "http://localhost";
+            
+            int wsId = getActiveWorkspaceId();
+            List<com.apiforge.studio.model.Collection> collections = databaseService.getCollections(wsId);
+            int collectionId;
+            if (collections.isEmpty()) {
+                collectionId = databaseService.createCollection(wsId, "Imported from cURL");
+            } else {
+                collectionId = collections.get(0).getId();
+            }
+            
+            com.apiforge.studio.model.ApiRequest req = new com.apiforge.studio.model.ApiRequest();
+            req.setProtocol("REST");
+            req.setMethod(method);
+            req.setUrl(url);
+            databaseService.saveRequest(wsId, collectionId, null, "cURL Request", req);
+            refreshCollectionsTree();
+            showInfo("Import Success", "Parsed cURL and added to your collection!");
+        } catch (Exception e) {
+            showError("Failed to parse cURL: " + e.getMessage());
+        }
+    }
+
+    public void importCollectionFromFile(File file) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            String content = Files.readString(file.toPath());
+            com.fasterxml.jackson.databind.JsonNode rootNode = mapper.readTree(content);
+            
+            int wsId = getActiveWorkspaceId();
+            
+            if (rootNode.has("info") && rootNode.get("info").has("name")) {
+                // Postman v2.1 format
+                String colName = rootNode.get("info").get("name").asText();
+                int colId = databaseService.createCollection(wsId, colName);
+                if (rootNode.has("item") && rootNode.get("item").isArray()) {
+                    parsePostmanItems(wsId, colId, null, rootNode.get("item"));
+                }
+                refreshCollectionsTree();
+                showInfo("Import Success", "Postman Collection imported successfully from " + file.getName());
+            } else if (rootNode.has("collection")) {
+                // ApiForge format
+                com.fasterxml.jackson.databind.JsonNode colNode = rootNode.get("collection");
+                String colName = colNode.has("name") ? colNode.get("name").asText() : "Imported Collection";
+                databaseService.createCollection(wsId, colName);
+                refreshCollectionsTree();
+                showInfo("Import Success", "ApiForge Collection imported successfully from " + file.getName());
+            } else {
+                showError("Invalid Collection format. Ensure it is a Postman v2.1 or ApiForge JSON.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Failed to import file: " + e.getMessage());
+        }
+    }
+
+    private void parsePostmanItems(int wsId, int colId, Integer folderId, com.fasterxml.jackson.databind.JsonNode itemsArray) {
+        for (com.fasterxml.jackson.databind.JsonNode item : itemsArray) {
+            String name = item.has("name") ? item.get("name").asText() : "Unnamed";
+            if (item.has("item") && item.get("item").isArray()) {
+                // It's a folder
+                int newFolderId = databaseService.createFolder(colId, name);
+                parsePostmanItems(wsId, colId, newFolderId, item.get("item"));
+            } else if (item.has("request")) {
+                // It's a request
+                com.fasterxml.jackson.databind.JsonNode reqNode = item.get("request");
+                String method = reqNode.has("method") ? reqNode.get("method").asText() : "GET";
+                String url = "";
+                if (reqNode.has("url")) {
+                    com.fasterxml.jackson.databind.JsonNode urlNode = reqNode.get("url");
+                    if (urlNode.isTextual()) url = urlNode.asText();
+                    else if (urlNode.has("raw")) url = urlNode.get("raw").asText();
+                }
+                
+                com.apiforge.studio.model.ApiRequest req = new com.apiforge.studio.model.ApiRequest();
+                req.setProtocol("REST");
+                req.setMethod(method);
+                req.setUrl(url);
+                
+                // Parse body if present
+                if (reqNode.has("body") && reqNode.get("body").has("raw")) {
+                    req.setBody(reqNode.get("body").get("raw").asText());
+                }
+                
+                int newReqId = databaseService.saveRequest(wsId, colId, folderId, name, req);
+                
+                // Parse Examples
+                if (item.has("response") && item.get("response").isArray()) {
+                    for (com.fasterxml.jackson.databind.JsonNode resp : item.get("response")) {
+                        String respName = resp.has("name") ? resp.get("name").asText() : "Example";
+                        int code = resp.has("code") ? resp.get("code").asInt() : 200;
+                        String body = "";
+                        if (resp.has("body")) {
+                            body = resp.get("body").asText();
+                        }
+                        String headersJson = "{}";
+                        databaseService.addExample(newReqId, respName, code, body, headersJson);
+                    }
+                }
+            }
+        }
+    }
+
+    private void exportCollection(com.apiforge.studio.model.Collection col) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Export Collection");
+            fileChooser.setInitialFileName(col.getName().replaceAll("[^a-zA-Z0-9.-]", "_") + ".json");
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+            File file = fileChooser.showSaveDialog(rootContainer.getScene().getWindow());
+            
+            if (file != null) {
+                Map<String, Object> exportData = new HashMap<>();
+                Map<String, Object> colData = new HashMap<>();
+                colData.put("id", col.getId());
+                colData.put("name", col.getName());
+                exportData.put("collection", colData);
+                
+                String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportData);
+                Files.writeString(file.toPath(), json);
+                showInfo("Export Success", "Collection exported successfully!");
+            }
+        } catch (Exception e) {
+            showError("Failed to export collection: " + e.getMessage());
+        }
+    }
+}

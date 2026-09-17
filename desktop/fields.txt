@@ -1,0 +1,125 @@
+
+
+    // Services
+    private HttpClientService httpClientService;
+    private WebSocketService webSocketService;
+    private StorageService storageService;
+    private DatabaseService databaseService;
+    private EnvironmentService environmentService;
+    private LoadTestingService loadTestingService;
+
+    // Active state
+    private ApiRequest currentRequest;
+    private String lastResponseBody = null;
+    private int lastResponseStatus = 0;
+    private final ObservableList<KeyValuePair> queryParamsData = FXCollections.observableArrayList();
+    private final ObservableList<KeyValuePair> headersData = FXCollections.observableArrayList();
+    private final ObservableList<KeyValuePair> responseHeadersData = FXCollections.observableArrayList();
+    
+    private final ObservableList<String> historyListItems = FXCollections.observableArrayList();
+    private List<HistoryEntry> historyList;
+    private List<com.apiforge.studio.model.Collection> collectionsList;
+
+    // FXML Elements
+    @FXML private ComboBox<String> protocolComboBox;
+    @FXML private ComboBox<String> methodComboBox;
+    @FXML private ComboBox<String> authTypeComboBox;
+    @FXML private TextField urlTextField;
+    @FXML private Button sendButton;
+    @FXML private Button saveExampleButton;
+    @FXML private BorderPane rootContainer;
+    @FXML private ComboBox<String> themeComboBox;
+    @FXML private ComboBox<com.apiforge.studio.model.Workspace> workspaceComboBox;
+    @FXML private ComboBox<com.apiforge.studio.model.Environment> environmentComboBox;
+    @FXML private TextArea preRequestScriptArea;
+    @FXML private TextArea testScriptArea;
+
+    // Sidebar
+    @FXML private TextField searchHistoryField;
+    @FXML private ListView<String> historyListView;
+    @FXML private TreeView<Object> collectionsTreeView;
+
+    // Request Tabs
+    @FXML private TableView<KeyValuePair> paramsTable;
+    @FXML private TableColumn<KeyValuePair, String> paramKeyColumn;
+    @FXML private TableColumn<KeyValuePair, String> paramValueColumn;
+    @FXML private TextField paramKeyField;
+    @FXML private TextField paramValueField;
+
+    @FXML private Tab headersTab;
+    @FXML private TableView<KeyValuePair> headersTable;
+    @FXML private TableColumn<KeyValuePair, Boolean> headerEnabledColumn;
+    @FXML private TableColumn<KeyValuePair, String> headerKeyColumn;
+    @FXML private TableColumn<KeyValuePair, String> headerValueColumn;
+    @FXML private TableColumn<KeyValuePair, Void> headerDeleteColumn;
+    @FXML private TextField headerKeyField;
+    @FXML private TextField headerValueField;
+    @FXML private Label headerCountLabel;
+    @FXML private MenuButton presetHeadersBtn;
+
+    // Auth fields
+    @FXML private StackPane authConfigContainer;
+    @FXML private VBox basicAuthForm;
+    @FXML private VBox bearerAuthForm;
+    @FXML private VBox apiKeyAuthForm;
+    @FXML private Label noAuthLabel;
+    @FXML private TextField authUsernameField;
+    @FXML private PasswordField authPasswordField;
+    @FXML private TextField authTokenField;
+    @FXML private TextField apiKeyNameField;
+    @FXML private TextField apiKeyValueField;
+
+    @FXML private Tab bodyTab;
+    @FXML private TextArea bodyTextArea;
+    @FXML private ToggleGroup bodyTypeGroup;
+    @FXML private RadioButton bodyNoneRadio;
+    @FXML private RadioButton bodyFormDataRadio;
+    @FXML private RadioButton bodyUrlEncodedRadio;
+    @FXML private RadioButton bodyRawRadio;
+    @FXML private RadioButton bodyBinaryRadio;
+    @FXML private VBox formDataPane;
+    @FXML private TextField formKeyField;
+    @FXML private TextField formValueField;
+    @FXML private TableView<KeyValuePair> formDataTable;
+    @FXML private TableColumn<KeyValuePair, String> formKeyColumn;
+    @FXML private TableColumn<KeyValuePair, String> formValueColumn;
+    @FXML private Label noBodyLabel;
+
+    @FXML private CheckBox followRedirectsCheck;
+    @FXML private CheckBox verifySslCheck;
+
+    private final ObservableList<KeyValuePair> formDataList = FXCollections.observableArrayList();
+
+    // Response Panel
+    @FXML private Label statusBadge;
+    @FXML private TextField exampleStatusCodeField;
+    @FXML private Label timeLabel;
+    @FXML private Label sizeLabel;
+    @FXML private ProgressIndicator loadingProgress;
+    @FXML private WebView responsePrettyWebView;
+    @FXML private TextArea exampleBodyEditor;
+    private StringBuilder streamBuffer = new StringBuilder();
+    @FXML private WebView responseWebView;
+    @FXML private TableView<KeyValuePair> responseHeadersTable;
+    @FXML private TableColumn<KeyValuePair, String> responseHeaderKeyColumn;
+    @FXML private TableColumn<KeyValuePair, String> responseHeaderValueColumn;
+    @FXML private Button addExampleHeaderBtn;
+    
+    private com.apiforge.studio.model.RequestExample currentExample;
+
+    // AI Assistant
+    @FXML private TextArea aiResponseTextArea;
+
+    // Load Tester
+    @FXML private TextField loadUsersField;
+    @FXML private TextField loadLoopsField;
+    @FXML private TextArea loadTestResultsTextArea;
+
+    // Mock Configurator
+    @FXML private TextField mockPathField;
+    @FXML private TextField mockStatusField;
+    @FXML private TextField mockDelayField;
+    @FXML private TextArea mockBodyField;
+
+    @FXML
+    

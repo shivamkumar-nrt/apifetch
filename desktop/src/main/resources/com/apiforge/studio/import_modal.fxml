@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+
+<VBox spacing="0" stylesheets="@css/styles.css" styleClass="import-modal-root" 
+      xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml/1" fx:controller="com.apiforge.studio.controller.ImportController">
+    
+    <!-- Custom Title Bar -->
+    <HBox alignment="CENTER_RIGHT" styleClass="import-header" onMousePressed="#handleMousePressed" onMouseDragged="#handleMouseDragged">
+        <padding><Insets top="15" right="15" bottom="15" left="25"/></padding>
+        <Label text="Import" styleClass="import-header-title" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+        <Button text="✕" onAction="#closeModalAction" styleClass="import-close-btn"/>
+    </HBox>
+
+    <VBox spacing="20" VBox.vgrow="ALWAYS">
+        <padding><Insets top="5" right="30" bottom="30" left="30"/></padding>
+
+        <!-- Top Text Input -->
+        <VBox spacing="8">
+            <TextField fx:id="curlInputField" promptText="Paste cURL, Raw text or URL..." styleClass="import-curl-input" prefHeight="44"/>
+            <Label text="Tip: You can also paste cURL in the request bar to import" styleClass="import-tip-label"/>
+        </VBox>
+        
+        <!-- Drag and Drop Zone -->
+        <VBox fx:id="dropZone" alignment="CENTER" spacing="12" styleClass="import-drop-zone" prefHeight="240" VBox.vgrow="ALWAYS">
+            <SVGPath content="M12 4L12 16M12 16L8 12M12 16L16 12M4 20L20 20" stroke="#9ca3af" strokeWidth="2" strokeLineCap="ROUND" strokeLineJoin="ROUND" fill="TRANSPARENT" scaleX="1.8" scaleY="1.8"/>
+            <Region prefHeight="15"/>
+            <Label text="Drop anywhere to import" styleClass="import-drop-title"/>
+            <HBox alignment="CENTER" spacing="4">
+                <Label text="Or select" styleClass="import-drop-subtitle"/>
+                <Hyperlink text="files" onAction="#browseFiles" styleClass="import-link"/>
+                <Label text="or" styleClass="import-drop-subtitle"/>
+                <Hyperlink text="folders" styleClass="import-link"/>
+            </HBox>
+        </VBox>
+
+        <!-- Footer Links -->
+        <HBox alignment="CENTER" spacing="15" styleClass="import-footer">
+            <Hyperlink text="Migrate to ApiForge" styleClass="import-footer-link"/>
+            <Label text="|" styleClass="import-footer-divider"/>
+            <MenuButton text="Other Sources" styleClass="import-footer-menu">
+                <items>
+                    <MenuItem text="Postman Collection v2.1"/>
+                    <MenuItem text="OpenAPI / Swagger"/>
+                </items>
+            </MenuButton>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Hyperlink text="Learn more about importing data ↗" styleClass="import-footer-link-small"/>
+        </HBox>
+    </VBox>
+</VBox>

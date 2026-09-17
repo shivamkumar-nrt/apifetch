@@ -1,0 +1,1749 @@
+/* ================================================================
+   APIFORGE STUDIO — POSTMAN-FAITHFUL PREMIUM LIGHT MODE
+   Accent: #FF6C37 (Postman orange) / Indigo #ff6c37 (our brand)
+   ================================================================ */
+
+/* ── Tokens ── */
+.root {
+    -fx-base:                    #f5f5f5;
+    -fx-background:              #f5f5f5;
+    -fx-control-inner-background: #ffffff;
+    -fx-light-text-color:        #212121;
+    -fx-dark-text-color:         #212121;
+    -fx-accent:                  #ff6c37;
+    -fx-focus-color:             #ff6c37;
+    -fx-faint-focus-color:       rgba(255,108,55,0.12);
+    -fx-font-family:             "Segoe UI", "SF Pro Text", Arial, sans-serif;
+    -fx-font-size:               13px;
+}
+
+/* ── Root Pane ── */
+.root-pane {
+    -fx-background-color: #f5f5f5;
+}
+
+/* ══════════════════════════════════════════
+   TOP BAR
+   ══════════════════════════════════════════ */
+.topbar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 1;
+    -fx-min-height: 48px;
+    -fx-max-height: 48px;
+    -fx-pref-height: 48px;
+}
+
+.topbar-brand {
+    -fx-text-fill: #111827;
+    -fx-font-size: 14.5px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: -0.3px;
+}
+
+.topbar-version-badge {
+    -fx-text-fill: #ff6c37;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-color: rgba(255,108,55,0.1);
+    -fx-background-radius: 10;
+    -fx-padding: 2 8 2 8;
+    -fx-border-color: rgba(79,70,229,0.2);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.topbar-label {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12px;
+}
+
+.topbar-sep {
+    -fx-background-color: #e5e7eb;
+    -fx-padding: 6 0 6 0;
+}
+
+.topbar-combo {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #111827;
+    -fx-font-size: 12.5px;
+    -fx-pref-height: 30px;
+}
+
+/* CRITICAL: JavaFX renders combo text via list-cell, not -fx-text-fill */
+.topbar-combo .list-cell {
+    -fx-text-fill: #111827;
+    -fx-background-color: transparent;
+    -fx-font-size: 12.5px;
+}
+
+.topbar-combo .cell {
+    -fx-text-fill: #111827;
+    -fx-background-color: transparent;
+}
+
+.topbar-combo .arrow {
+    -fx-background-color: #6b7280;
+}
+
+.topbar-icon-btn {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #4b5563;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-pref-height: 30px;
+    -fx-pref-width: 30px;
+    -fx-cursor: hand;
+}
+
+.topbar-icon-btn:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.topbar-action-btn {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+    -fx-text-fill: #374151;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 600;
+    -fx-pref-height: 30px;
+    -fx-cursor: hand;
+    -fx-padding: 0 12 0 12;
+}
+
+.topbar-action-btn:hover {
+    -fx-background-color: #f9fafb;
+}
+
+/* ══════════════════════════════════════════
+   MAIN SPLIT PANE
+   ══════════════════════════════════════════ */
+.main-split {
+    -fx-background-color: #f5f5f5;
+    -fx-padding: 0;
+}
+
+.main-split > .split-pane-divider {
+    -fx-background-color: #e0e0e0;
+    -fx-pref-width: 1px;
+}
+
+.content-split {
+    -fx-background-color: #f5f5f5;
+    -fx-padding: 0;
+}
+
+.content-split > .split-pane-divider {
+    -fx-background-color: #e0e0e0;
+    -fx-pref-height: 1px;
+}
+
+/* ══════════════════════════════════════════
+   LEFT SIDEBAR — Postman-style
+   ══════════════════════════════════════════ */
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent #e0e0e0 transparent transparent;
+    -fx-border-width: 0 1 0 0;
+    -fx-min-width: 200px;
+}
+
+.sidebar-section-label {
+    -fx-font-size: 10.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #9e9e9e;
+    -fx-letter-spacing: 0.08em;
+    -fx-padding: 0 4 6 4;
+}
+
+.sidebar-action-row {
+    -fx-padding: 0 0 12 0;
+}
+
+.sidebar-btn {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: transparent;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 0;
+    -fx-text-fill: #374151;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-padding: 6 12 6 12;
+}
+
+.sidebar-btn:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+.sidebar-search {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: transparent;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+    -fx-padding: 6 10 6 10;
+}
+
+.sidebar-search:focused {
+    -fx-border-color: #d1d5db;
+}
+
+/* Sidebar TabPane */
+.sidebar-tabpane {
+    -fx-background-color: transparent;
+    -fx-tab-min-height: 28px;
+}
+
+.sidebar-tabpane .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.sidebar-tabpane .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 4 10 4 10;
+}
+
+.sidebar-tabpane .tab .tab-label {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: bold;
+}
+
+.sidebar-tabpane .tab:selected .tab-label {
+    -fx-text-fill: #111827;
+}
+
+.sidebar-tabpane .tab:selected {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #111827 transparent;
+    -fx-border-width: 0 0 2 0;
+}
+
+.sidebar-tabpane .tab-content-area {
+    -fx-background-color: transparent;
+}
+
+/* Sidebar list */
+.sidebar-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+
+.sidebar-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #424242;
+    -fx-font-size: 12px;
+    -fx-padding: 6 8 6 8;
+    -fx-background-radius: 4;
+}
+
+.sidebar-list .list-cell:hover {
+    -fx-background-color: #f9fafb;
+}
+
+.sidebar-list .list-cell:selected {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #111827;
+}
+
+/* Sidebar tree (collections) */
+.sidebar-tree {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.sidebar-tree .tree-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #374151;
+    -fx-font-size: 12.5px;
+    -fx-padding: 4 8 4 8;
+    -fx-background-radius: 4;
+}
+
+.sidebar-tree .tree-cell:hover {
+    -fx-background-color: #f9fafb;
+}
+
+.sidebar-tree .tree-cell:selected {
+    -fx-background-color: #f3f4f6;
+    -fx-text-fill: #111827;
+}
+
+/* ══════════════════════════════════════════
+   REQUEST PANE
+   ══════════════════════════════════════════ */
+.request-pane {
+    -fx-background-color: #ffffff;
+}
+
+/* URL ROW */
+.url-row {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.url-protocol-combo {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4 0 0 4;
+    -fx-background-radius: 4 0 0 4;
+    -fx-border-width: 1 0 1 1;
+    -fx-text-fill: #424242;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 600;
+    -fx-pref-height: 36px;
+}
+
+.url-protocol-combo .list-cell,
+.url-protocol-combo .cell {
+    -fx-text-fill: #424242;
+    -fx-background-color: transparent;
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 600;
+}
+
+.url-method-combo {
+    -fx-background-color: #fff8f0;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-border-width: 1 0 1 1;
+    -fx-text-fill: #e65100;
+    -fx-font-weight: bold;
+    -fx-font-size: 12.5px;
+    -fx-pref-height: 36px;
+    -fx-pref-width: 90px;
+}
+
+.url-method-combo .list-cell,
+.url-method-combo .cell {
+    -fx-text-fill: #e65100;
+    -fx-background-color: transparent;
+    -fx-font-weight: bold;
+    -fx-font-size: 12.5px;
+}
+
+.url-textfield {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-border-width: 1 0 1 1;
+    -fx-text-fill: #212121;
+    -fx-prompt-text-fill: #9e9e9e;
+    -fx-font-family: "Cascadia Code", "Consolas", monospace;
+    -fx-font-size: 13px;
+    -fx-pref-height: 36px;
+    -fx-padding: 0 10 0 10;
+}
+
+.url-textfield:focused {
+    -fx-border-color: #ff6c37 #e0e0e0 #ff6c37 #ff6c37;
+}
+
+.url-send-btn {
+    -fx-background-color: #ff6c37;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-background-radius: 0 4 4 0;
+    -fx-border-radius: 0 4 4 0;
+    -fx-pref-height: 36px;
+    -fx-padding: 0 22 0 22;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(79,70,229,0.3), 8, 0, 0, 2);
+}
+
+.url-send-btn:hover {
+    -fx-background-color: #e65100;
+}
+
+.url-send-btn:pressed {
+    -fx-background-color: #bf360c;
+    -fx-effect: none;
+}
+
+/* ══════════════════════════════════════════
+   REQUEST TAB PANE  (Postman-style)
+   ══════════════════════════════════════════ */
+.req-tabpane {
+    -fx-background-color: #ffffff;
+}
+
+.req-tabpane .tab-header-area {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 0;
+}
+
+.req-tabpane .tab-header-background {
+    -fx-background-color: #ffffff;
+}
+
+.req-tabpane .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 8 16 8 16;
+    -fx-border-width: 0;
+    -fx-border-color: transparent;
+}
+
+.req-tabpane .tab .tab-label {
+    -fx-text-fill: #616161;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+.req-tabpane .tab:hover .tab-label {
+    -fx-text-fill: #212121;
+}
+
+.req-tabpane .tab:selected {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #FF6C37 transparent;
+    -fx-border-width: 0 0 2.5 0;
+}
+
+.req-tabpane .tab:selected .tab-label {
+    -fx-text-fill: #FF6C37;
+    -fx-font-weight: bold;
+}
+
+.req-tabpane .tab-content-area {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent;
+}
+
+/* Inner tabpane (Settings > Load Test / Mock) */
+/* ══════════════════════════════════════════
+   MAIN TABS (content-tabpane)
+   ══════════════════════════════════════════ */
+.content-tabpane .tab-header-area {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.content-tabpane .tab-header-background {
+    -fx-background-color: #f9fafb;
+}
+.content-tabpane .tab {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent transparent transparent;
+    -fx-border-width: 2 1 0 1;
+    -fx-padding: 6 12 6 12;
+}
+.content-tabpane .tab:selected {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #FF6C37 #e5e7eb transparent #e5e7eb;
+}
+.content-tabpane .tab .tab-label {
+    -fx-text-fill: #4b5563;
+    -fx-font-size: 13px;
+}
+.content-tabpane .tab:selected .tab-label {
+    -fx-text-fill: #111827;
+}
+
+.content-tabpane .add-tab-btn {
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+    -fx-padding: 6 10 6 10;
+}
+.content-tabpane .add-tab-btn .tab-label {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 18px;
+    -fx-font-weight: normal;
+}
+.content-tabpane .add-tab-btn:hover .tab-label {
+    -fx-text-fill: #4b5563;
+}
+.content-tabpane .add-tab-btn:selected {
+    -fx-border-color: transparent;
+}
+
+.inner-tabpane {
+    -fx-background-color: #ffffff;
+}
+
+.inner-tabpane .tab-header-area {
+    -fx-background-color: #fafafa;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.inner-tabpane .tab-header-background {
+    -fx-background-color: #fafafa;
+}
+
+.inner-tabpane .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 6 14 6 14;
+}
+
+.inner-tabpane .tab .tab-label {
+    -fx-text-fill: #757575;
+    -fx-font-size: 12.5px;
+}
+
+.inner-tabpane .tab:selected .tab-label {
+    -fx-text-fill: #ff6c37;
+    -fx-font-weight: bold;
+}
+
+.inner-tabpane .tab:selected {
+    -fx-border-color: transparent transparent #ff6c37 transparent;
+    -fx-border-width: 0 0 2 0;
+}
+
+/* Tab content area */
+.tab-content-area {
+    -fx-background-color: #ffffff;
+    -fx-padding: 14 14 14 14;
+    -fx-spacing: 10;
+}
+
+/* ══════════════════════════════════════════
+   KV TABLE (Params / Headers shared style)
+   ══════════════════════════════════════════ */
+
+/* Section title inside a tab */
+.tab-section-title {
+    -fx-font-size: 12.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #616161;
+    -fx-padding: 0 0 8 0;
+}
+
+/* Custom column header row */
+.kv-table-header {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+}
+
+.kv-th {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #757575;
+    -fx-padding: 0 0 0 12;
+    -fx-letter-spacing: 0.05em;
+}
+
+.kv-th-center {
+    -fx-font-size: 11px;
+    -fx-text-fill: #9e9e9e;
+    -fx-alignment: center;
+}
+
+/* Add row (highlighted yellow like Postman) */
+.kv-add-row {
+    -fx-background-color: #fffde7;
+    -fx-border-color: transparent transparent #ffe082 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-min-height: 36px;
+    -fx-max-height: 36px;
+}
+
+/* Input fields inside the add row */
+.kv-row-input {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #212121;
+    -fx-prompt-text-fill: #9e9e9e;
+    -fx-font-size: 13px;
+    -fx-pref-height: 36px;
+    -fx-padding: 0 8 0 12;
+}
+
+.kv-row-input:focused {
+    -fx-background-color: rgba(255,255,255,0.8);
+}
+
+.kv-row-input-val {
+    -fx-font-family: "Cascadia Code", "Consolas", monospace;
+    -fx-font-size: 12.5px;
+    -fx-text-fill: #37474f;
+    -fx-border-color: transparent transparent transparent #e0e0e0;
+    -fx-border-width: 0 0 0 1;
+}
+
+/* Plus button on add-row */
+.kv-plus-btn {
+    -fx-background-color: #ff6c37;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 36px;
+    -fx-pref-height: 36px;
+    -fx-background-radius: 0;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+}
+
+.kv-plus-btn:hover {
+    -fx-background-color: #e65100;
+}
+
+/* Checkbox inside add row */
+.kv-row-checkbox {
+    -fx-alignment: center;
+    -fx-padding: 0 0 0 10;
+}
+
+/* ══ Tables ══ */
+.pq-table {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* No-header variant (headers hidden, using custom HBox header above) */
+.pq-table-no-header .column-header-background {
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+.pq-table-no-header .column-header {
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+/* Table with visible headers (params table) */
+.pq-table .column-header-background {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.pq-table .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 8 12 8 12;
+    -fx-border-color: transparent;
+}
+
+.pq-table .column-header .label {
+    -fx-text-fill: #757575;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* All table rows */
+.pq-table .table-row-cell,
+.pq-table-no-header .table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #f5f5f5 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-pref-height: 38px;
+    -fx-min-height: 38px;
+}
+
+.pq-table .table-row-cell:odd,
+.pq-table-no-header .table-row-cell:odd {
+    -fx-background-color: #fafafa;
+}
+
+.pq-table .table-row-cell:hover,
+.pq-table-no-header .table-row-cell:hover {
+    -fx-background-color: #f3f0ff;
+}
+
+.pq-table .table-row-cell:selected,
+.pq-table-no-header .table-row-cell:selected {
+    -fx-background-color: #ede9fe;
+}
+
+.pq-table .table-cell,
+.pq-table-no-header .table-cell {
+    -fx-text-fill: #424242;
+    -fx-font-size: 12.5px;
+    -fx-padding: 6 12 6 12;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.pq-table .table-row-cell:selected .table-cell,
+.pq-table-no-header .table-row-cell:selected .table-cell {
+    -fx-text-fill: #ff6c37;
+}
+
+/* Empty placeholder */
+.table-empty-label {
+    -fx-text-fill: #9e9e9e;
+    -fx-font-size: 12.5px;
+    -fx-font-style: italic;
+}
+
+/* ══════════════════════════════════════════
+   HEADERS PANEL
+   ══════════════════════════════════════════ */
+.headers-panel {
+    -fx-background-color: #ffffff;
+}
+
+.headers-toolbar {
+    -fx-background-color: #fafafa;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.header-count-badge {
+    -fx-background-color: #ede9fe;
+    -fx-text-fill: #ff6c37;
+    -fx-font-size: 11.5px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-padding: 3 10 3 10;
+    -fx-border-color: rgba(79,70,229,0.2);
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+}
+
+.btn-preset {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+    -fx-text-fill: #616161;
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+    -fx-pref-height: 28px;
+    -fx-cursor: hand;
+    -fx-padding: 0 12 0 12;
+}
+
+.btn-preset:hover {
+    -fx-background-color: #ede9fe;
+    -fx-border-color: #ff6c37;
+    -fx-text-fill: #ff6c37;
+}
+
+.btn-ghost-danger {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #9e9e9e;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-pref-height: 28px;
+    -fx-padding: 0 8 0 8;
+    -fx-background-radius: 4;
+}
+
+.btn-ghost-danger:hover {
+    -fx-background-color: #ffebee;
+    -fx-text-fill: #c62828;
+}
+
+/* ══════════════════════════════════════════
+   RESPONSE PANE
+   ══════════════════════════════════════════ */
+.response-pane {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+/* Response status bar row (ABOVE tabs) */
+.resp-status-bar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-min-height: 40px;
+    -fx-max-height: 40px;
+}
+
+.resp-section-label {
+    -fx-font-size: 10.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #9e9e9e;
+    -fx-letter-spacing: 0.08em;
+}
+
+/* 200 OK badge */
+.chip-status {
+    -fx-font-size: 12.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2e7d32;
+    -fx-background-color: #e8f5e9;
+    -fx-background-radius: 4;
+    -fx-padding: 3 10 3 10;
+    -fx-border-color: #c8e6c9;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+}
+
+/* Error status */
+.chip-status-error {
+    -fx-text-fill: #c62828;
+    -fx-background-color: #ffebee;
+    -fx-border-color: #ffcdd2;
+}
+
+/* Time / Size chips */
+.chip-stat {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #616161;
+    -fx-background-color: #f5f5f5;
+    -fx-background-radius: 4;
+    -fx-padding: 3 10 3 10;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+}
+
+/* Response Tab Pane */
+.resp-tabpane {
+    -fx-background-color: #ffffff;
+}
+
+.resp-tabpane .tab-header-area {
+    -fx-background-color: #ffffff;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+}
+
+.resp-tabpane .tab-header-background {
+    -fx-background-color: #ffffff;
+}
+
+.resp-tabpane .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 10 16 10 16;
+    -fx-border-width: 0;
+}
+
+.resp-tabpane .tab .tab-label {
+    -fx-text-fill: #757575;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+.resp-tabpane .tab:hover .tab-label {
+    -fx-text-fill: #212121;
+}
+
+.resp-tabpane .tab:selected {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #FF6C37 transparent;
+    -fx-border-width: 0 0 2.5 0;
+}
+
+.resp-tabpane .tab:selected .tab-label {
+    -fx-text-fill: #FF6C37;
+    -fx-font-weight: bold;
+}
+
+.resp-tabpane .tab-content-area {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent;
+}
+
+/* Response tab content */
+.resp-tab-content {
+    -fx-background-color: #fafafa;
+    -fx-padding: 0;
+}
+
+/* Response code editor */
+.resp-code-editor {
+    -fx-background-color: #fafafa;
+    -fx-control-inner-background: #fafafa;
+    -fx-border-color: transparent;
+    -fx-font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
+    -fx-font-size: 13px;
+    -fx-text-fill: #1a1a2e;
+    -fx-padding: 2;
+}
+
+/* ══════════════════════════════════════════
+   RESPONSE HEADERS TABLE — Postman exact
+   ══════════════════════════════════════════ */
+
+/* Custom column header row for response headers */
+.resp-header-col-row {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: transparent transparent #e0e0e0 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-min-height: 30px;
+    -fx-max-height: 30px;
+}
+
+.resp-col-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #757575;
+    -fx-padding: 0 0 0 14;
+    -fx-letter-spacing: 0.05em;
+}
+
+/* The response headers table */
+.resp-header-table {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent;
+    -fx-table-header-border-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Hide default header */
+.resp-header-table .column-header-background {
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+.resp-header-table .column-header {
+    -fx-max-height: 0;
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.resp-header-table .table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #f5f5f5 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-pref-height: 36px;
+    -fx-min-height: 36px;
+}
+
+.resp-header-table .table-row-cell:odd {
+    -fx-background-color: #fafafa;
+}
+
+.resp-header-table .table-row-cell:hover {
+    -fx-background-color: #f3f0ff;
+}
+
+.resp-header-table .table-row-cell:selected {
+    -fx-background-color: #ede9fe;
+}
+
+.resp-header-table .table-cell {
+    -fx-text-fill: #424242;
+    -fx-font-size: 12.5px;
+    -fx-padding: 6 12 6 14;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+/* ══════════════════════════════════════════
+   CODE EDITOR (Body / AI / Load / Mock)
+   ══════════════════════════════════════════ */
+.code-editor {
+    -fx-background-color: #fafafa;
+    -fx-control-inner-background: #fafafa;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+    -fx-font-family: "Cascadia Code", "Consolas", monospace;
+    -fx-font-size: 13px;
+    -fx-text-fill: #212121;
+    -fx-prompt-text-fill: #9e9e9e;
+}
+
+.code-editor:focused {
+    -fx-border-color: #ff6c37;
+}
+
+/* ══════════════════════════════════════════
+   FORM FIELDS (Auth / Settings)
+   ══════════════════════════════════════════ */
+.field-label {
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #616161;
+}
+
+.field-input {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+    -fx-text-fill: #212121;
+    -fx-prompt-text-fill: #9e9e9e;
+    -fx-pref-height: 32px;
+    -fx-padding: 0 10 0 10;
+    -fx-font-size: 13px;
+}
+
+.field-input:focused {
+    -fx-border-color: #ff6c37;
+}
+
+.field-input-mono {
+    -fx-font-family: "Cascadia Code", "Consolas", monospace;
+    -fx-font-size: 12.5px;
+    -fx-text-fill: #37474f;
+}
+
+.field-combo {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+    -fx-text-fill: #212121;
+    -fx-pref-height: 32px;
+    -fx-font-size: 12.5px;
+    
+}
+
+.field-combo:focused {
+    -fx-border-color: #ff6c37;
+}
+
+.field-combo .list-cell,
+.field-combo .cell {
+    -fx-text-fill: #212121;
+    -fx-background-color: transparent;
+    -fx-font-size: 12.5px;
+}
+
+.auth-no-auth-label {
+    -fx-text-fill: #9e9e9e;
+    -fx-font-size: 12.5px;
+    -fx-font-style: italic;
+    -fx-padding: 10 0 0 0;
+}
+
+/* ══════════════════════════════════════════
+   AI / LOAD TEST BUTTONS
+   ══════════════════════════════════════════ */
+.btn-ai {
+    -fx-background-color: #f0fdf4;
+    -fx-border-color: #bbf7d0;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-border-width: 1;
+    -fx-text-fill: #15803d;
+    -fx-font-weight: bold;
+    -fx-font-size: 12.5px;
+    -fx-pref-height: 32px;
+    -fx-padding: 0 14 0 14;
+    -fx-cursor: hand;
+}
+
+.btn-ai:hover {
+    -fx-background-color: #dcfce7;
+}
+
+/* Load config row */
+.load-config-row {
+    -fx-background-color: #fafafa;
+    -fx-background-radius: 5;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 5;
+    -fx-border-width: 1;
+    -fx-padding: 10 14 10 14;
+}
+
+/* ══════════════════════════════════════════
+   CHECKBOX (table rows)
+   ══════════════════════════════════════════ */
+.check-box .box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #bdbdbd;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-border-width: 1.5;
+    -fx-pref-width: 15px;
+    -fx-pref-height: 15px;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #ff6c37;
+    -fx-border-color: #ff6c37;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #ffffff;
+}
+
+/* ══════════════════════════════════════════
+   SCROLLBARS — thin modern
+   ══════════════════════════════════════════ */
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+    -fx-pref-height: 8px;
+}
+
+.scroll-bar:vertical .track,
+.scroll-bar:horizontal .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical .thumb,
+.scroll-bar:horizontal .thumb {
+    -fx-background-color: #d0d0d0;
+    -fx-background-radius: 6;
+}
+
+.scroll-bar:vertical .thumb:hover,
+.scroll-bar:horizontal .thumb:hover {
+    -fx-background-color: #9e9e9e;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-width: 0;
+    -fx-pref-height: 0;
+}
+
+/* ══════════════════════════════════════════
+   COMBO BOX POPUP
+   ══════════════════════════════════════════ */
+.combo-box-popup .list-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0, 0, 4);
+    -fx-padding: 4;
+}
+
+.combo-box-popup .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #424242;
+    -fx-font-size: 12.5px;
+    -fx-padding: 7 14 7 14;
+    -fx-background-radius: 4;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+.combo-box-popup .list-cell:selected {
+    -fx-background-color: #ede9fe;
+    -fx-text-fill: #ff6c37;
+    -fx-font-weight: bold;
+}
+
+/* ══════════════════════════════════════════
+   CONTEXT MENU
+   ══════════════════════════════════════════ */
+.context-menu {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.14), 16, 0, 0, 4);
+    -fx-padding: 4;
+}
+
+.menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 7 16 7 16;
+    -fx-background-radius: 4;
+}
+
+.menu-item .label {
+    -fx-text-fill: #424242;
+    -fx-font-size: 12.5px;
+}
+
+.menu-item:hover, .menu-item:focused {
+    -fx-background-color: #f5f5f5;
+}
+
+.menu-item:focused .label {
+    -fx-text-fill: #ff6c37;
+}
+
+/* ══════════════════════════════════════════
+   MISC
+   ══════════════════════════════════════════ */
+.progress-indicator {
+    -fx-accent: #ff6c37;
+}
+
+.tooltip {
+    -fx-background-color: #212121;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 12px;
+    -fx-background-radius: 4;
+    -fx-padding: 5 10 5 10;
+}
+
+/* ══════════════════════════════════════════
+   DARK THEME OVERRIDES
+   ══════════════════════════════════════════ */
+.dark-theme {
+    -fx-base: #1e1e1e;
+    -fx-background: #1e1e1e;
+    -fx-control-inner-background: #1e1e1e;
+    -fx-light-text-color: #d4d4d4;
+    -fx-dark-text-color: #d4d4d4;
+}
+
+/* ─────────────────────────────────────────────────────────
+   DYNAMIC TEXT COLORS
+   ───────────────────────────────────────────────────────── */
+.resp-header-standard { -fx-text-fill: #ff6c37; -fx-font-weight: bold; }
+.resp-header-custom { -fx-text-fill: #334155; }
+.dark-theme .resp-header-standard { -fx-text-fill: #818cf8; -fx-font-weight: bold; }
+.dark-theme .resp-header-custom { -fx-text-fill: #9ca3af; }
+.dark-theme.root-pane { -fx-background-color: #1e1e1e; }
+.dark-theme .topbar { -fx-background-color: #18181b; }
+.dark-theme .main-split > .split-pane-divider, .dark-theme .content-split > .split-pane-divider { -fx-background-color: #2d2d30; }
+.dark-theme .sidebar { -fx-background-color: #252526; -fx-border-color: transparent #3e3e42 transparent transparent; }
+.dark-theme .sidebar-section-label { -fx-text-fill: #9ca3af; }
+.dark-theme .sidebar-btn { -fx-background-color: #2d2d30; -fx-border-color: #3e3e42; -fx-text-fill: #cccccc; }
+.dark-theme .sidebar-btn:hover { -fx-background-color: #3e3e42; }
+.dark-theme .sidebar-search { -fx-background-color: #1e1e1e; -fx-border-color: #3e3e42; -fx-text-fill: #d4d4d4; }
+.dark-theme .sidebar-tabpane .tab-header-area .tab-header-background { -fx-background-color: #252526; }
+.dark-theme .sidebar-tabpane .tab { -fx-background-color: #252526; }
+.dark-theme .sidebar-tabpane .tab .tab-label { -fx-text-fill: #9ca3af; }
+.dark-theme .sidebar-tree .tree-cell { -fx-background-color: #252526; -fx-text-fill: #d4d4d4; }
+.dark-theme .sidebar-tree .tree-cell:hover { -fx-background-color: #2d2d30; }
+.dark-theme .sidebar-tree .tree-cell:.search-highlight { -fx-background-color: #ffff00; -fx-text-fill: #000000; }
+.dark-theme .search-highlight { -fx-background-color: #515c6a; -fx-text-fill: #ffffff; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   IMPORT MODAL UI
+   ───────────────────────────────────────────────────────────────────────────── */
+.import-modal-root {
+    -fx-background-color: #ffffff;
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1;
+}
+.dark-theme .import-modal-root {
+    -fx-background-color: #1e1e1e;
+    -fx-border-color: #3e3e42;
+}
+
+/* Header Styles */
+.import-header {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: move;
+}
+.dark-theme .import-header {
+    -fx-background-color: #252526;
+    -fx-border-color: transparent transparent #3e3e42 transparent;
+}
+.import-header-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+.dark-theme .import-header-title {
+    -fx-text-fill: #e5e7eb;
+}
+.import-close-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 14px;
+    -fx-padding: 2 6;
+    -fx-cursor: hand;
+}
+.import-close-btn:hover {
+    -fx-text-fill: #ef4444;
+    -fx-background-color: #fee2e2;
+    -fx-background-radius: 4;
+}
+.dark-theme .import-close-btn:hover {
+    -fx-background-color: #451a1a;
+}
+
+.import-curl-input {
+    -fx-background-color: transparent;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-padding: 8 12;
+    -fx-font-size: 14px;
+    -fx-text-fill: #111827;
+}
+.import-curl-input:focused {
+    -fx-border-color: #f97316; /* Postman orange */
+}
+.dark-theme .import-curl-input {
+    -fx-border-color: #3e3e42;
+    -fx-text-fill: #e5e7eb;
+}
+.dark-theme .import-curl-input:focused {
+    -fx-border-color: #f97316;
+}
+
+.import-tip-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #6b7280;
+}
+.dark-theme .import-tip-label {
+    -fx-text-fill: #9ca3af;
+}
+
+.import-drop-zone {
+    -fx-border-color: #e5e7eb;
+    -fx-border-style: dashed;
+    -fx-border-width: 2;
+    -fx-border-radius: 8;
+    -fx-background-color: #f9fafb;
+    -fx-cursor: hand;
+}
+.import-drop-zone:hover, .import-drop-zone-active {
+    -fx-border-color: #f97316;
+    -fx-background-color: #fffaf5;
+}
+.dark-theme .import-drop-zone {
+    -fx-border-color: #3e3e42;
+    -fx-background-color: #1e1e1e;
+}
+.dark-theme .import-drop-zone:hover, .dark-theme .import-drop-zone-active {
+    -fx-border-color: #f97316;
+    -fx-background-color: #2a201a;
+}
+
+.import-icon-large {
+    -fx-font-size: 48px;
+    -fx-text-fill: #9ca3af;
+}
+.dark-theme .import-icon-large {
+    -fx-text-fill: #6b7280;
+}
+
+.import-drop-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #374151;
+}
+.dark-theme .import-drop-title {
+    -fx-text-fill: #e5e7eb;
+}
+
+.import-drop-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7280;
+}
+.dark-theme .import-drop-subtitle {
+    -fx-text-fill: #9ca3af;
+}
+
+.import-link {
+    -fx-font-size: 13px;
+    -fx-text-fill: #0ea5e9;
+    -fx-underline: false;
+    -fx-padding: 0;
+}
+.import-link:hover {
+    -fx-underline: true;
+}
+
+.import-footer {
+    -fx-padding: 10 0 0 0;
+}
+.import-footer-link {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4b5563;
+    -fx-padding: 0;
+}
+.dark-theme .import-footer-link {
+    -fx-text-fill: #9ca3af;
+}
+.import-footer-divider {
+    -fx-text-fill: #d1d5db;
+}
+.dark-theme .import-footer-divider {
+    -fx-text-fill: #3e3e42;
+}
+.import-footer-menu {
+    -fx-background-color: transparent;
+    -fx-text-fill: #4b5563;
+    -fx-font-size: 13px;
+    -fx-padding: 0;
+}
+.dark-theme .import-footer-menu {
+    -fx-text-fill: #9ca3af;
+}
+.import-footer-link-small {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6b7280;
+    -fx-padding: 0;
+}
+
+.dark-theme .sidebar-list .list-cell { -fx-background-color: #252526; -fx-text-fill: #d4d4d4; }
+.dark-theme .sidebar-list .list-cell:hover { -fx-background-color: #2d2d30; }
+.dark-theme .sidebar-list .list-cell:selected { -fx-background-color: #37373d; -fx-text-fill: #FF6C37; }
+
+/* Main panes */
+.dark-theme .request-pane, .dark-theme .response-pane, .dark-theme .tab-content-area, .dark-theme .headers-panel { -fx-background-color: #1e1e1e; }
+.dark-theme .url-row { -fx-border-color: transparent transparent #2d2d30 transparent; -fx-background-color: #1e1e1e; }
+.dark-theme .url-protocol-combo { -fx-background-color: #2d2d30; -fx-border-color: #3e3e42; -fx-text-fill: #d4d4d4; }
+.dark-theme .url-protocol-combo .list-cell { -fx-text-fill: #d4d4d4; }
+.dark-theme .url-method-combo { -fx-background-color: #2d2d30; -fx-border-color: #3e3e42; }
+.dark-theme .url-textfield { -fx-background-color: #1e1e1e; -fx-border-color: #3e3e42; -fx-text-fill: #d4d4d4; -fx-prompt-text-fill: #6b7280; }
+
+/* TabPanes */
+.dark-theme .req-tabpane .tab-header-area .tab-header-background, .dark-theme .resp-tabpane .tab-header-area .tab-header-background { -fx-background-color: #1e1e1e; -fx-border-color: transparent transparent #2d2d30 transparent; }
+.dark-theme .req-tabpane .tab, .dark-theme .resp-tabpane .tab { -fx-background-color: #1e1e1e; }
+.dark-theme .req-tabpane .tab .tab-label, .dark-theme .resp-tabpane .tab .tab-label { -fx-text-fill: #9ca3af; }
+.dark-theme .req-tabpane .tab:hover .tab-label, .dark-theme .resp-tabpane .tab:hover .tab-label { -fx-text-fill: #d4d4d4; }
+.dark-theme .req-tabpane .tab:selected .tab-label, .dark-theme .resp-tabpane .tab:selected .tab-label { -fx-text-fill: #FF6C37; }
+
+/* TableViews */
+.dark-theme .table-view, .dark-theme .table-view .filler, .dark-theme .table-view .column-header-background, .dark-theme .table-view .virtual-flow, .dark-theme .table-view .virtual-flow .sheet, .dark-theme .table-view .virtual-flow .corner, .dark-theme .table-view .placeholder { -fx-background-color: #1e1e1e; }
+.dark-theme .table-view .placeholder .label { -fx-text-fill: #6b7280; }
+.dark-theme .table-view .column-header { -fx-background-color: #252526; -fx-border-color: transparent #2d2d30 transparent transparent; }
+.dark-theme .table-view .column-header .label { -fx-text-fill: #9ca3af; }
+.dark-theme .table-row-cell { -fx-background-color: #1e1e1e; -fx-border-color: transparent transparent #252526 transparent; }
+.dark-theme .table-row-cell:odd { -fx-background-color: #222222; }
+.dark-theme .table-row-cell:empty { -fx-background-color: #1e1e1e; -fx-border-color: transparent; }
+.dark-theme .table-cell { -fx-text-fill: #d4d4d4; }
+
+/* Key-Value Tables (Custom HBoxes) */
+.dark-theme .kv-table-header, .dark-theme .resp-header-col-row { -fx-background-color: #252526; -fx-border-color: transparent transparent #2d2d30 transparent; }
+.dark-theme .kv-th, .dark-theme .resp-col-label { -fx-text-fill: #9ca3af; }
+.dark-theme .kv-add-row { -fx-background-color: #1e1e1e; -fx-border-color: transparent transparent #2d2d30 transparent; }
+.dark-theme .kv-row-input { -fx-background-color: #1e1e1e; -fx-text-fill: #d4d4d4; -fx-prompt-text-fill: #6b7280; }
+.dark-theme .kv-row-input-val { -fx-border-color: transparent transparent transparent #2d2d30; }
+
+/* Toolbars & Misc */
+.dark-theme .headers-toolbar, .dark-theme .resp-status-bar { -fx-background-color: #1e1e1e; -fx-border-color: transparent transparent #2d2d30 transparent; }
+.dark-theme .btn-preset { -fx-background-color: #2d2d30; -fx-border-color: #3e3e42; -fx-text-fill: #d4d4d4; }
+.dark-theme .code-editor, .dark-theme .resp-code-editor { -fx-background-color: #1e1e1e; -fx-control-inner-background: #1e1e1e; -fx-border-color: #2d2d30; -fx-text-fill: #d4d4d4; }
+.dark-theme .field-input, .dark-theme .field-combo { -fx-background-color: #1e1e1e; -fx-border-color: #3e3e42; -fx-text-fill: #d4d4d4; }
+.dark-theme .field-combo .list-cell { -fx-text-fill: #d4d4d4; -fx-background-color: #1e1e1e; }
+.dark-theme .field-combo .list-cell:hover { -fx-background-color: #2d2d30; }
+.dark-theme .field-label, .dark-theme .tab-section-title { -fx-text-fill: #9ca3af; }
+.dark-theme .load-config-row { -fx-background-color: #252526; -fx-border-color: #2d2d30; }
+
+/* ComboBox Popups & Context Menus */
+.dark-theme .combo-box-popup .list-view, .dark-theme .context-menu { -fx-background-color: #252526; -fx-border-color: #3e3e42; }
+.dark-theme .combo-box-popup .list-cell, .dark-theme .menu-item .label { -fx-text-fill: #d4d4d4; -fx-background-color: #252526; }
+.dark-theme .combo-box-popup .list-cell:hover, .dark-theme .menu-item:hover { -fx-background-color: #3e3e42; }
+
+/* Status Chips */
+.dark-theme .chip-status { -fx-background-color: #2e303f; -fx-text-fill: #818cf8; -fx-border-color: #3e4155; }
+.dark-theme .chip-status-error { -fx-background-color: #451a1d; -fx-text-fill: #fca5a5; -fx-border-color: #7f1d1d; }
+.dark-theme .chip-stat { -fx-background-color: #27272a; -fx-border-color: #3f3f46; -fx-text-fill: #a1a1aa; }
+
+/* Scrollbars */
+.dark-theme .scroll-bar { -fx-background-color: #1e1e1e; }
+.dark-theme .scroll-bar .thumb { -fx-background-color: #3e3e42; -fx-background-radius: 4; }
+.dark-theme .scroll-bar .thumb:hover { -fx-background-color: #555555; }
+.dark-theme .scroll-bar .track { -fx-background-color: #1e1e1e; }
+.dark-theme .scroll-bar .increment-button, .dark-theme .scroll-bar .decrement-button { -fx-background-color: transparent; }
+.dark-theme .scroll-bar .increment-arrow, .dark-theme .scroll-bar .decrement-arrow { -fx-background-color: #9ca3af; }
+ 
+ 
+/* History List specific styles */
+.history-method {
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-min-width: 45px;
+}
+.history-method-get { -fx-text-fill: #0cbb52; }
+.history-method-post { -fx-text-fill: #ffb400; }
+.history-method-put { -fx-text-fill: #097bed; }
+.history-method-delete { -fx-text-fill: #eb2013; }
+.history-method-patch { -fx-text-fill: #212121; }
+
+.history-url {
+    -fx-text-fill: #424242;
+    -fx-font-size: 12px;
+}
+
+/* Empty State Pane */
+.empty-state-pane {
+    -fx-background-color: #ffffff;
+}
+.empty-state-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #424242;
+}
+.empty-state-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #757575;
+}
+/* ------------------------------------------
+   TOGGLE SWITCH (Postman-style Settings)
+   ------------------------------------------ */
+.toggle-switch {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-cursor: hand;
+}
+.toggle-switch .box {
+    -fx-background-color: #e0e0e0;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-pref-width: 36;
+    -fx-pref-height: 20;
+    -fx-border-color: #ccc;
+    -fx-border-width: 1;
+}
+.toggle-switch:selected .box {
+    -fx-background-color: #ff6c37;
+    -fx-border-color: #ff6c37;
+}
+.toggle-switch .mark {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-pref-width: 16;
+    -fx-pref-height: 16;
+    -fx-translate-x: -8;
+    -fx-translate-y: 1;
+    -fx-shape: "M 0 0 h 16 v 16 h -16 z";
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 2, 0, 0, 1);
+}
+.toggle-switch:selected .mark {
+    -fx-translate-x: 8;
+}
+.setting-row {
+    -fx-padding: 12 0 12 0;
+    -fx-border-color: transparent transparent #f0f0f0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.setting-title {
+    -fx-font-weight: bold;
+    -fx-text-fill: #212121;
+    -fx-font-size: 13px;
+}
+.setting-desc {
+    -fx-text-fill: #616161;
+    -fx-font-size: 12px;
+}
+.test-results-summary {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.test-pass-label {
+    -fx-text-fill: #16a34a;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+.test-fail-label {
+    -fx-text-fill: #dc2626;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+
+/* Response Empty State */
+.empty-state-container {
+    -fx-background-color: #ffffff;
+}
+.empty-state-icon {
+    -fx-shape: "M 17.5 19 C 15.01 19 13 16.99 13 14.5 C 13 12.18 14.75 10.26 17 10.04 C 17.65 7.18 20.2 5 23.25 5 C 26.98 5 30 8.02 30 11.75 C 32.27 12.1 34 14.07 34 16.5 C 34 19.01 31.99 21 29.5 21 L 17.5 21 L 17.5 19 Z M 21 15 L 21 25 L 26 25 L 26 15 L 29 15 L 23.5 8 L 18 15 L 21 15 Z";
+    -fx-background-color: #ff6c37;
+    -fx-min-width: 64px;
+    -fx-min-height: 64px;
+    -fx-pref-width: 64px;
+    -fx-pref-height: 64px;
+    -fx-max-width: 64px;
+    -fx-max-height: 64px;
+}
+.empty-state-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+.empty-state-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #888888;
+}
+
+
+/* --- UNIFORM INPUT SIZING FIX --- */
+.field-input, .field-combo, .url-textfield, .url-method-combo, .url-protocol-combo, .kv-row-input, .setting-input {
+    -fx-min-height: 36px;
+    -fx-pref-height: 36px;
+    -fx-max-height: 36px;
+}
+.url-send-btn, .kv-add-btn, .kv-plus-btn {
+    -fx-min-height: 36px;
+    -fx-pref-height: 36px;
+    -fx-max-height: 36px;
+}
+.field-combo .list-cell, .url-method-combo .list-cell, .url-protocol-combo .list-cell {
+    -fx-padding: 8 10;
+}
+.field-input, .url-textfield, .kv-row-input {
+    -fx-padding: 8 10;
+}
+
+/* AGGRESSIVE HEIGHT NORMALIZATION */
+.field-input, .field-combo, .url-textfield, .url-method-combo, .url-protocol-combo, .kv-row-input, .setting-input, .url-send-btn, .kv-add-btn, .kv-plus-btn {
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-max-height: 34px;
+}
+/* Force ComboBox internals to not expand */
+.field-combo > .list-cell, .url-method-combo > .list-cell, .url-protocol-combo > .list-cell {
+    -fx-min-height: 24px;
+    -fx-pref-height: 24px;
+    -fx-max-height: 24px;
+    -fx-padding: 0 10;
+}
+.field-combo > .arrow-button, .url-method-combo > .arrow-button, .url-protocol-combo > .arrow-button {
+    -fx-padding: 0 8;
+}
+.field-input, .url-textfield, .kv-row-input {
+    -fx-padding: 8 10;
+}
+/* Ensure labels match vertically */
+.field-label {
+    -fx-padding: 0;
+    -fx-min-height: 34px;
+    -fx-pref-height: 34px;
+    -fx-max-height: 34px;
+    -fx-alignment: CENTER_LEFT;
+}
+/* Make sure there's no inherited padding pushing things out */
+
+/* --- END FIX --- */
+
+.auth-no-auth-label, .table-empty-label {
+    -fx-padding: 10 0 0 0;
+}
+
+
+/* --- POSTMAN PREMIUM TABLE STYLE --- */
+.pq-table {
+    -fx-background-color: transparent;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+}
+.pq-table .table-column {
+    -fx-alignment: CENTER_LEFT;
+}
+.pq-table .table-cell {
+    -fx-border-color: transparent transparent #f3f4f6 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 6 12;
+    -fx-text-fill: #374151;
+}
+.pq-table .table-row-cell {
+    -fx-background-color: #ffffff;
+}
+.pq-table .table-row-cell:empty {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.pq-table .table-row-cell:empty .table-cell {
+    -fx-border-width: 0;
+}
+.pq-table .table-row-cell:selected {
+    -fx-background-color: #f9fafb;
+}
+.pq-table .column-header-background {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.pq-table .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.pq-table .column-header .label {
+    -fx-text-fill: #4b5563;
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+}
+/* Style the Add Row to blend perfectly like a table row */
+.kv-add-row, .kv-input-row {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-border-width: 0 0 1 0;
+}
+.kv-row-input {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent transparent #e5e7eb;
+    -fx-border-width: 0 0 0 1;
+    -fx-border-radius: 0;
+}
+.kv-row-input:focused {
+    -fx-background-color: #ffffff;
+}
+.kv-add-btn, .kv-plus-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #4b5563;
+    -fx-border-color: transparent transparent transparent #e5e7eb;
+    -fx-border-width: 0 0 0 1;
+    -fx-border-radius: 0;
+}
+.kv-add-btn:hover, .kv-plus-btn:hover {
+    -fx-background-color: #f3f4f6;
+}
+/* --- END POSTMAN TABLE STYLE --- */
+
+
+/* --- EXTRA PREMIUM TWEAKS FOR FAKE HEADERS --- */
+.kv-table-header {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-padding: 8 10;
+}
+.kv-th {
+    -fx-text-fill: #4b5563;
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+}
+.kv-th-center {
+    -fx-alignment: CENTER;
+}
+.tab-section-title {
+    -fx-text-fill: #4b5563;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+/* Ensure table alternates are disabled for pure Postman look */
+.pq-table .table-row-cell:odd {
+    -fx-background-color: #ffffff;
+}
+.pq-table .table-row-cell:hover {
+    -fx-background-color: #f9fafb;
+}
+
+.pq-table:focused { -fx-background-color: transparent; -fx-background-insets: 0; -fx-border-color: #e5e7eb; -fx-border-width: 0 1 1 1; }
+
+.pq-table .table-cell { -fx-border-color: transparent transparent #e5e7eb transparent; }
+
+.kv-add-row { -fx-border-color: transparent transparent #e5e7eb transparent; }
+
+.kv-table-header { -fx-border-color: #e5e7eb #e5e7eb transparent #e5e7eb; -fx-border-width: 1 1 0 1; }
+
+.kv-add-row { -fx-border-color: transparent #e5e7eb #e5e7eb #e5e7eb; -fx-border-width: 0 1 1 1; }

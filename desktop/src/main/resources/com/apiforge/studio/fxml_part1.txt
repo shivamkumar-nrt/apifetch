@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+<SplitPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml.com/fxml/1" fx:controller="com.apiforge.studio.controller.RequestTabController" orientation="VERTICAL" dividerPositions="0.50" styleClass="content-split">
+<VBox styleClass="request-pane"><HBox spacing="0" alignment="CENTER_LEFT" styleClass="url-row"><padding><Insets top="12" right="14" bottom="12" left="14"/></padding><ComboBox fx:id="protocolComboBox" styleClass="url-protocol-combo" onAction="#onProtocolChanged" prefWidth="80"/><ComboBox fx:id="methodComboBox" styleClass="url-method-combo" prefWidth="90"/><TextField fx:id="urlTextField" HBox.hgrow="ALWAYS" promptText="Enter URL or paste text" styleClass="url-textfield"/><Button fx:id="sendButton" text="Send" onAction="#sendRequest" styleClass="url-send-btn"/><Button fx:id="saveExampleButton" text="Save Example" onAction="#saveExample" visible="false" managed="false" styleClass="url-send-btn" style="-fx-background-color: #2e7d32;"/></HBox>
+

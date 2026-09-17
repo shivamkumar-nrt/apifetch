@@ -1,0 +1,22 @@
+CREATE TABLE load_test_results (
+    id UUID PRIMARY KEY,
+    workspace_id UUID NOT NULL,
+    url TEXT NOT NULL,
+    method VARCHAR(10) NOT NULL,
+    concurrent_users INT NOT NULL,
+    total_requests INT NOT NULL,
+    success_count INT NOT NULL,
+    failure_count INT NOT NULL,
+    min_latency_ms BIGINT,
+    max_latency_ms BIGINT,
+    avg_latency_ms DOUBLE PRECISION,
+    p50_ms BIGINT,
+    p90_ms BIGINT,
+    p99_ms BIGINT,
+    tps DOUBLE PRECISION,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_by VARCHAR(255),
+    updated_at TIMESTAMP WITH TIME ZONE,
+    updated_by VARCHAR(255),
+    version INT
+);

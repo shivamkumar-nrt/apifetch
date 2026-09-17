@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+<SplitPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://fxml.com/fxml/1" fx:controller="com.apiforge.studio.controller.RequestTabController" orientation="VERTICAL" dividerPositions="0.50" styleClass="content-split">
+<VBox styleClass="request-pane">
+<HBox spacing="10" alignment="CENTER_LEFT" styleClass="url-row">
+<padding><Insets top="12" right="14" bottom="12" left="14"/></padding>
+<HBox spacing="0" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+    <ComboBox fx:id="protocolComboBox" styleClass="url-protocol-combo" onAction="#onProtocolChanged" prefWidth="80"/>
+    <ComboBox fx:id="methodComboBox" styleClass="url-method-combo" prefWidth="90"/>
+    <TextField fx:id="urlTextField" HBox.hgrow="ALWAYS" promptText="Enter URL or paste text" styleClass="url-textfield"/>
+    <Button fx:id="sendButton" text="Send" onAction="#sendRequest" styleClass="url-send-btn"/>
+</HBox>
+<Button fx:id="copyCurlBtn" text="Copy cURL"  styleClass="url-send-btn" style="-fx-background-color: #555; -fx-background-radius: 4;"/>
+<Button fx:id="saveExampleButton" text="Save Example" onAction="#saveExample" visible="false" managed="false" styleClass="url-send-btn" style="-fx-background-color: #2e7d32; -fx-background-radius: 4;"/>
+</HBox>
+<TabPane styleClass="req-tabpane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS"><tabs>
+<Tab text="Params"><VBox styleClass="tab-content-area">
+<VBox spacing="0" VBox.vgrow="ALWAYS">
+<HBox alignment="CENTER_LEFT" spacing="8" style="-fx-padding: 0 0 10 0;"><Label text="Query Params" styleClass="tab-section-title"/></HBox>
+<HBox styleClass="kv-table-header"><Label text="" prefWidth="40"/><Label text="Key" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="kv-th"/><Label text="Value" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="kv-th"/><Button fx:id="bulkEditParamsBtn" text="Bulk Edit" onAction="#onBulkEditParams" styleClass="btn-postman-link" prefWidth="60"/></HBox>
+<ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="postman-scrollpane"><content><VBox fx:id="paramsRowsBox" id="paramsRowsBox" spacing="0"/></content></ScrollPane>
+</VBox>
+<TextArea fx:id="paramsBulkEditArea" visible="false" managed="false" prefHeight="120" promptText="key:value one per line" styleClass="code-editor"/>
+<HBox fx:id="paramsBulkEditDoneRow" visible="false" managed="false" spacing="8" alignment="CENTER_RIGHT"><Button text="Apply" onAction="#applyBulkEditParams" styleClass="url-send-btn"/><Button text="Cancel" onAction="#cancelBulkEditParams" styleClass="topbar-action-btn"/></HBox>
+</VBox></Tab>
+<Tab text="Authorization"><VBox spacing="14" styleClass="tab-content-area">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Auth Type:" prefWidth="130" styleClass="field-label"/><ComboBox fx:id="authTypeComboBox" onAction="#onAuthTypeChanged" styleClass="field-combo"/></HBox>
+<StackPane fx:id="authConfigContainer" VBox.vgrow="ALWAYS">
+<Label fx:id="noAuthLabel" text="This request does not use any authorization." styleClass="auth-no-auth-label"/>
+<VBox fx:id="basicAuthForm" spacing="12" visible="false"><HBox spacing="12" alignment="CENTER_LEFT"><Label text="Username:" prefWidth="130" styleClass="field-label"/><TextField fx:id="authUsernameField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox><HBox spacing="12" alignment="CENTER_LEFT"><Label text="Password:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="authPasswordField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox></VBox>
+<VBox fx:id="bearerAuthForm" spacing="12" visible="false"><HBox spacing="12" alignment="CENTER_LEFT"><Label text="Token:" prefWidth="130" styleClass="field-label"/><TextField fx:id="authTokenField" promptText="eyJhbGciOi..." styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox></VBox>
+<VBox fx:id="apiKeyAuthForm" spacing="12" visible="false"><HBox spacing="12" alignment="CENTER_LEFT"><Label text="Key Name:" prefWidth="130" styleClass="field-label"/><TextField fx:id="apiKeyNameField" promptText="X-API-Key" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox><HBox spacing="12" alignment="CENTER_LEFT"><Label text="Value:" prefWidth="130" styleClass="field-label"/><TextField fx:id="apiKeyValueField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox></VBox>
+<VBox fx:id="digestAuthForm" spacing="12" visible="false"><HBox spacing="12" alignment="CENTER_LEFT"><Label text="Username:" prefWidth="130" styleClass="field-label"/><TextField fx:id="digestUsernameField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox><HBox spacing="12" alignment="CENTER_LEFT"><Label text="Password:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="digestPasswordField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox></VBox>
+<VBox fx:id="oauth2Form" spacing="12" visible="false">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Access Token:" prefWidth="130" styleClass="field-label"/><TextField fx:id="oauth2TokenField" promptText="Paste access token here" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Token URL:" prefWidth="130" styleClass="field-label"/><TextField fx:id="oauth2TokenUrlField" promptText="https://auth.example.com/token" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Client ID:" prefWidth="130" styleClass="field-label"/><TextField fx:id="oauth2ClientIdField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Client Secret:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="oauth2ClientSecretField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Scope:" prefWidth="130" styleClass="field-label"/><TextField fx:id="oauth2ScopeField" promptText="openid email profile" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+</VBox>
+<VBox fx:id="awsForm" spacing="12" visible="false">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Access Key:" prefWidth="130" styleClass="field-label"/><TextField fx:id="awsAccessKeyField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Secret Key:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="awsSecretKeyField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Region:" prefWidth="130" styleClass="field-label"/><TextField fx:id="awsRegionField" promptText="us-east-1" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Service:" prefWidth="130" styleClass="field-label"/><TextField fx:id="awsServiceField" promptText="execute-api" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+</VBox>
+
+<VBox fx:id="oauth1Form" spacing="16" visible="false">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Consumer Key:" prefWidth="130" styleClass="field-label"/><TextField fx:id="oauth1ConsumerKeyField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Consumer Secret:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="oauth1ConsumerSecretField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Access Token:" prefWidth="130" styleClass="field-label"/><TextField fx:id="oauth1TokenField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Token Secret:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="oauth1TokenSecretField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Signature Method:" prefWidth="130" styleClass="field-label"/><ComboBox fx:id="oauth1SignatureMethodCombo" styleClass="field-combo" prefWidth="250"/></HBox>
+</VBox>
+<VBox fx:id="hawkAuthForm" spacing="16" visible="false">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Hawk Auth ID:" prefWidth="130" styleClass="field-label"/><TextField fx:id="hawkIdField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Hawk Auth Key:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="hawkKeyField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Algorithm:" prefWidth="130" styleClass="field-label"/><ComboBox fx:id="hawkAlgorithmCombo" styleClass="field-combo" prefWidth="250"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="User:" prefWidth="130" styleClass="field-label"/><TextField fx:id="hawkUserField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Nonce:" prefWidth="130" styleClass="field-label"/><TextField fx:id="hawkNonceField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+</VBox>
+<VBox fx:id="ntlmAuthForm" spacing="16" visible="false">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Username:" prefWidth="130" styleClass="field-label"/><TextField fx:id="ntlmUsernameField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Password:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="ntlmPasswordField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Domain:" prefWidth="130" styleClass="field-label"/><TextField fx:id="ntlmDomainField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Workstation:" prefWidth="130" styleClass="field-label"/><TextField fx:id="ntlmWorkstationField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+</VBox>
+<VBox fx:id="akamaiAuthForm" spacing="16" visible="false">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Access Token:" prefWidth="130" styleClass="field-label"/><TextField fx:id="akamaiAccessTokenField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Client Token:" prefWidth="130" styleClass="field-label"/><TextField fx:id="akamaiClientTokenField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Client Secret:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="akamaiClientSecretField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Base URL:" prefWidth="130" styleClass="field-label"/><TextField fx:id="akamaiBaseUrlField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+</VBox>
+<VBox fx:id="jwtAuthForm" spacing="16" visible="false">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Algorithm:" prefWidth="130" styleClass="field-label"/><ComboBox fx:id="jwtAlgorithmCombo" styleClass="field-combo" prefWidth="250"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Secret:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="jwtSecretField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="16" alignment="TOP_LEFT"><Label text="Payload:" prefWidth="130" styleClass="field-label"/><TextArea fx:id="jwtPayloadArea" prefHeight="100" promptText="{&#10;  &quot;sub&quot;: &quot;1234567890&quot;&#10;}" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+</VBox>
+<VBox fx:id="awsForm" spacing="12" visible="false">
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Access Key:" prefWidth="130" styleClass="field-label"/><TextField fx:id="awsAccessKeyField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Secret Key:" prefWidth="130" styleClass="field-label"/><PasswordField fx:id="awsSecretKeyField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Region:" prefWidth="130" styleClass="field-label"/><TextField fx:id="awsRegionField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+<HBox spacing="12" alignment="CENTER_LEFT"><Label text="Service:" prefWidth="130" styleClass="field-label"/><TextField fx:id="awsServiceField" styleClass="field-input" HBox.hgrow="ALWAYS"/></HBox>
+</VBox>
+<VBox fx:id="advancedAuthForm" spacing="12" visible="false"><Label fx:id="advancedAuthHintLabel" text="" styleClass="auth-no-auth-label" wrapText="true"/></VBox>
+</StackPane></VBox></Tab>
+<Tab text="Headers" fx:id="headersTab"><VBox spacing="0" styleClass="headers-panel">
+<HBox spacing="8" alignment="CENTER_LEFT" styleClass="headers-toolbar"><padding><Insets top="8" right="12" bottom="8" left="12"/></padding>
+<MenuButton fx:id="presetHeadersBtn" text="Presets" styleClass="btn-preset"><items><MenuItem text="Content-Type: application/json" onAction="#addPresetJson"/><MenuItem text="Content-Type: multipart/form-data" onAction="#addPresetMultipart"/><MenuItem text="Accept: application/json" onAction="#addPresetAccept"/><MenuItem text="Authorization: Bearer {token}" onAction="#addPresetBearer"/><MenuItem text="Cache-Control: no-cache" onAction="#addPresetNoCache"/><MenuItem text="User-Agent: APIForge/1.0" onAction="#addPresetUserAgent"/></items></MenuButton>
+<Region HBox.hgrow="ALWAYS"/><Label fx:id="headerCountLabel" text="No headers" styleClass="header-count-badge"/><Button text="Clear All" onAction="#clearAllHeaders" styleClass="btn-ghost-danger" style="-fx-text-fill: #0065ff;"/></HBox>
+<HBox styleClass="kv-table-header"><Label text="" prefWidth="36" styleClass="kv-th-center"/><Label text="Key" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="kv-th"/><Label text="Value" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="kv-th"/><Label text="" prefWidth="36" styleClass="kv-th-center"/></HBox>
+<HBox spacing="0" alignment="CENTER_LEFT" styleClass="kv-add-row"><CheckBox selected="true" styleClass="kv-row-checkbox" prefWidth="36"/><TextField fx:id="headerKeyField" promptText="Key" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="kv-row-input"/><TextField fx:id="headerValueField" promptText="Value" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="kv-row-input"/><Button text="+" onAction="#addHeader" styleClass="kv-plus-btn" prefWidth="36"/></HBox>
+<TableView fx:id="headersTable" VBox.vgrow="ALWAYS" styleClass="pq-table pq-table-no-header"><columns><TableColumn fx:id="headerEnabledColumn" text="" prefWidth="36" maxWidth="36" minWidth="36" resizable="false"/><TableColumn fx:id="headerKeyColumn" text="Key" prefWidth="260"/><TableColumn fx:id="headerValueColumn" text="Value" prefWidth="360"/><TableColumn fx:id="headerDeleteColumn" text="" prefWidth="36" maxWidth="36" minWidth="36" resizable="false"/></columns><placeholder><Label text="No headers." styleClass="table-empty-label"/></placeholder></TableView>
+</VBox></Tab>
+<Tab fx:id="bodyTab" text="Body"><VBox spacing="8" styleClass="tab-content-area">
+<HBox spacing="12" alignment="CENTER_LEFT"><fx:define><ToggleGroup fx:id="bodyTypeGroup"/></fx:define><RadioButton text="none" toggleGroup="$bodyTypeGroup" fx:id="bodyNoneRadio"/><RadioButton text="form-data" toggleGroup="$bodyTypeGroup" fx:id="bodyFormDataRadio"/><RadioButton text="x-www-form-urlencoded" toggleGroup="$bodyTypeGroup" fx:id="bodyUrlEncodedRadio"/><RadioButton text="raw" toggleGroup="$bodyTypeGroup" fx:id="bodyRawRadio" selected="true"/><RadioButton text="binary" toggleGroup="$bodyTypeGroup" fx:id="bodyBinaryRadio"/></HBox>
+<StackPane VBox.vgrow="ALWAYS"><TextArea fx:id="bodyTextArea" promptText="Enter JSON, XML, or raw body..." styleClass="code-editor"/>
+<VBox fx:id="formDataPane" visible="false" spacing="0" VBox.vgrow="ALWAYS">
+<HBox styleClass="kv-table-header"><Label text="" prefWidth="40"/><Label text="Key" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="kv-th"/><Label text="Value" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="kv-th"/><Label text="Bulk Edit" styleClass="btn-postman-link" prefWidth="60"/></HBox>
+<ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="postman-scrollpane" style="-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-padding: 0; -fx-border-color: transparent;"><content><VBox fx:id="formDataRowsBox" id="formDataRowsBox" spacing="0" style="-fx-background-color: #ffffff;"/></content></ScrollPane>
+</VBox>
+<Label fx:id="noBodyLabel" text="This request does not have a body" visible="false"/></StackPane>
+</VBox></Tab>
+<Tab text="Pre-request Script"><VBox spacing="0" styleClass="tab-content-area"><TextArea fx:id="preRequestScriptArea" promptText="// pm.environment.set(key, val);" VBox.vgrow="ALWAYS" styleClass="code-editor"/></VBox></Tab>
+<Tab text="Tests"><VBox spacing="0" styleClass="tab-content-area"><TextArea fx:id="testScriptArea" promptText="// pm.test(name, fn)" VBox.vgrow="ALWAYS" styleClass="code-editor"/></VBox></Tab>
+<Tab text="AI Assistant"><VBox spacing="8" styleClass="tab-content-area"><HBox spacing="8"><Button text="Generate Tests" onAction="#generateAiTests" styleClass="btn-ai"/><Button text="Mock Payload" onAction="#generateAiMockPayload" styleClass="btn-ai"/><Button text="Explain Method" onAction="#generateAiExplanation" styleClass="btn-ai"/></HBox><TextArea fx:id="aiResponseTextArea" promptText="AI results appear here..." VBox.vgrow="ALWAYS" styleClass="code-editor"/></VBox></Tab>
+<Tab text="Settings"><VBox spacing="0"><TabPane tabClosingPolicy="UNAVAILABLE" styleClass="inner-tabpane"><tabs>
+<Tab text="Request Settings"><ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;"><VBox styleClass="tab-content-area" spacing="0">
+<HBox alignment="CENTER_LEFT" styleClass="setting-row"><VBox HBox.hgrow="ALWAYS" spacing="2"><Label text="Enable SSL certificate verification" styleClass="setting-title"/><Label text="Verify SSL certs when sending requests." styleClass="setting-desc"/></VBox><Region HBox.hgrow="ALWAYS"/><CheckBox fx:id="verifySslCheck" styleClass="toggle-switch" selected="true"/></HBox>
+<HBox alignment="CENTER_LEFT" styleClass="setting-row"><VBox HBox.hgrow="ALWAYS" spacing="2"><Label text="Automatically follow redirects" styleClass="setting-title"/><Label text="Follow HTTP 3xx responses." styleClass="setting-desc"/></VBox><Region HBox.hgrow="ALWAYS"/><CheckBox fx:id="followRedirectsCheck" styleClass="toggle-switch" selected="true"/></HBox>
+<HBox alignment="CENTER_LEFT" styleClass="setting-row"><VBox HBox.hgrow="ALWAYS" spacing="2"><Label text="Follow original HTTP Method" styleClass="setting-title"/><Label text="Redirect with the original HTTP method." styleClass="setting-desc"/></VBox><Region HBox.hgrow="ALWAYS"/><CheckBox fx:id="followOriginalHttpMethodCheck" styleClass="toggle-switch" selected="false"/></HBox>
+<HBox alignment="CENTER_LEFT" styleClass="setting-row"><VBox HBox.hgrow="ALWAYS" spacing="2"><Label text="Follow Authorization header" styleClass="setting-title"/><Label text="Retain auth header on redirect." styleClass="setting-desc"/></VBox><Region HBox.hgrow="ALWAYS"/><CheckBox fx:id="followAuthorizationHeaderCheck" styleClass="toggle-switch" selected="false"/></HBox>
+<HBox alignment="CENTER_LEFT" styleClass="setting-row"><VBox HBox.hgrow="ALWAYS" spacing="2"><Label text="Remove referer header on redirect" styleClass="setting-title"/><Label text="Remove referer when redirect happens." styleClass="setting-desc"/></VBox><Region HBox.hgrow="ALWAYS"/><CheckBox fx:id="removeRefererHeaderOnRedirectCheck" styleClass="toggle-switch" selected="true"/></HBox>
+<HBox alignment="CENTER_LEFT" styleClass="setting-row"><VBox HBox.hgrow="ALWAYS" spacing="2"><Label text="Enable strict HTTP parser" styleClass="setting-title"/><Label text="Ensure RFC-compliant request." styleClass="setting-desc"/></VBox><Region HBox.hgrow="ALWAYS"/><CheckBox fx:id="enableStrictHttpParserCheck" styleClass="toggle-switch" selected="false"/></HBox>
+<HBox alignment="CENTER_LEFT" styleClass="setting-row"><VBox HBox.hgrow="ALWAYS" spacing="2"><Label text="Encode URL automatically" styleClass="setting-title"/><Label text="Encode special characters in URL." styleClass="setting-desc"/></VBox><Region HBox.hgrow="ALWAYS"/><CheckBox fx:id="encodeUrlAutomaticallyCheck" styleClass="toggle-switch" selected="true"/></HBox>
+<HBox alignment="CENTER_LEFT" styleClass="setting-row"><VBox HBox.hgrow="ALWAYS" spacing="2"><Label text="Disable cookie jar" styleClass="setting-title"/><Label text="Prevent cookies from being stored." styleClass="setting-desc"/></VBox><Region HBox.hgrow="ALWAYS"/><CheckBox fx:id="disableCookieJarCheck" styleClass="toggle-switch" selected="false"/></HBox>
+</VBox></ScrollPane></Tab>
+<Tab text="Load Test"><VBox spacing="10" styleClass="tab-content-area"><HBox spacing="16" alignment="CENTER_LEFT" styleClass="load-config-row"><Label text="Virtual Users:" styleClass="field-label"/><TextField fx:id="loadUsersField" text="10" prefWidth="70" styleClass="field-input"/><Label text="Iterations:" styleClass="field-label"/><TextField fx:id="loadLoopsField" text="50" prefWidth="70" styleClass="field-input"/><Button text="Run Simulation" onAction="#runLoadSimulation" styleClass="url-send-btn"/></HBox><TextArea fx:id="loadTestResultsTextArea" promptText="Press Run Simulation to start..." VBox.vgrow="ALWAYS" styleClass="code-editor"/></VBox></Tab>
+<Tab text="Mock Config"><VBox spacing="10" styleClass="tab-content-area"><HBox spacing="12" alignment="CENTER_LEFT"><TextField fx:id="mockPathField" promptText="/mock/v1/resource" HBox.hgrow="ALWAYS" styleClass="field-input"/><TextField fx:id="mockStatusField" promptText="Status (200)" prefWidth="110" styleClass="field-input"/><TextField fx:id="mockDelayField" promptText="Delay ms" prefWidth="90" styleClass="field-input"/><Button text="Publish Mock" onAction="#registerCloudMockRoute" styleClass="url-send-btn"/></HBox><TextArea fx:id="mockBodyField" promptText="Enter JSON response body..." VBox.vgrow="ALWAYS" styleClass="code-editor"/></VBox></Tab>
+</tabs></TabPane></VBox></Tab>
+</tabs></TabPane></VBox>
+<VBox styleClass="response-pane">
+<HBox alignment="CENTER_LEFT" spacing="14" styleClass="resp-status-bar"><padding><Insets top="8" right="14" bottom="8" left="14"/></padding>
+<Label text="RESPONSE" styleClass="resp-section-label"/>
+<StackPane alignment="CENTER_LEFT"><Label fx:id="statusBadge" text="-" styleClass="chip-status"/><TextField fx:id="exampleStatusCodeField" prefWidth="70" visible="false" managed="false" style="-fx-font-family: monospace; -fx-font-size: 11px;"/></StackPane>
+<Label fx:id="timeLabel" text="-" styleClass="chip-stat"/>
+<Label fx:id="sizeLabel" text="-" styleClass="chip-stat"/>
+<Region HBox.hgrow="ALWAYS"/>
+<Button fx:id="saveResponseBtn" text="Save Response" onAction="#saveResponse" styleClass="topbar-action-btn" visible="false" managed="false"/>
+<ProgressIndicator fx:id="loadingProgress" prefWidth="18" prefHeight="18" visible="false"/>
+</HBox>
+<StackPane VBox.vgrow="ALWAYS">
+    <VBox fx:id="responseEmptyState" alignment="CENTER" spacing="16" styleClass="empty-state-container">
+        <Region styleClass="empty-state-icon"/>
+        <Label text="Hit Send to get a response" styleClass="empty-state-title"/>
+        <Label text="Waiting for you to make a request..." styleClass="empty-state-subtitle"/>
+    </VBox>
+    <TabPane fx:id="responseTabPane" styleClass="resp-tabpane" tabClosingPolicy="UNAVAILABLE" visible="false" managed="false"><tabs>
+<Tab text="Body"><VBox spacing="0" styleClass="resp-tab-content"><StackPane VBox.vgrow="ALWAYS"><WebView fx:id="responsePrettyWebView"/><TextArea fx:id="exampleBodyEditor" visible="false" managed="false" styleClass="code-editor" promptText="Enter JSON response body here..."/></StackPane></VBox></Tab>
+<Tab text="Preview"><WebView fx:id="responseWebView"/></Tab>
+<Tab text="Headers"><VBox spacing="0">
+<HBox styleClass="resp-header-col-row" spacing="10" alignment="CENTER_LEFT"><Label text="Key" prefWidth="280" styleClass="resp-col-label"/><Label text="Value" HBox.hgrow="ALWAYS" maxWidth="Infinity" styleClass="resp-col-label"/><Button fx:id="addExampleHeaderBtn" text="+" onAction="#addExampleHeader" visible="false" managed="false" style="-fx-background-color: transparent; -fx-text-fill: #999999;"/></HBox>
+<TableView fx:id="responseHeadersTable" VBox.vgrow="ALWAYS" styleClass="resp-header-table"><columns><TableColumn fx:id="responseHeaderKeyColumn" text="Header" prefWidth="280"/><TableColumn fx:id="responseHeaderValueColumn" text="Value" prefWidth="600"/></columns><placeholder><Label text="Send a request to see response headers." styleClass="table-empty-label"/></placeholder></TableView>
+</VBox></Tab>
+<Tab text="Cookies"><VBox spacing="0">
+<TableView fx:id="responseCookiesTable" VBox.vgrow="ALWAYS" styleClass="resp-header-table"><columns><TableColumn fx:id="cookieNameCol" text="Name" prefWidth="180"/><TableColumn fx:id="cookieValueCol" text="Value" prefWidth="260"/><TableColumn fx:id="cookieDomainCol" text="Domain" prefWidth="160"/><TableColumn fx:id="cookiePathCol" text="Path" prefWidth="80"/></columns><placeholder><Label text="No cookies received." styleClass="table-empty-label"/></placeholder></TableView>
+</VBox></Tab>
+<Tab text="Test Results"><VBox spacing="0">
+<HBox styleClass="test-results-summary" alignment="CENTER_LEFT" spacing="16"><padding><Insets top="8" right="14" bottom="8" left="14"/></padding><Label fx:id="testPassLabel" text="0 passing" styleClass="test-pass-label"/><Label fx:id="testFailLabel" text="0 failing" styleClass="test-fail-label"/></HBox>
+<ListView fx:id="testResultsList" VBox.vgrow="ALWAYS" styleClass="sidebar-list"/>
+</VBox></Tab>
+</tabs></TabPane></StackPane>
+</VBox>
+</SplitPane>
